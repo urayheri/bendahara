@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bendahara Dinas</title>
+    <title>Aplikasi Akumulasi TPP Pegawai Multi-Sheet</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (xlsx) for reading/writing Excel files -->
@@ -11,27 +11,41 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col selection:bg-indigo-500 selection:text-white">
 
-    <!-- Header / Navbar -->
-    <header class="bg-indigo-900 text-white shadow-lg border-b border-indigo-800">
+    <!-- Header / Navbar Mewah -->
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl border-b border-indigo-800/40 sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-700 p-2 rounded-lg">
-                    <i data-lucide="calculator" class="w-6 h-6 text-indigo-200"></i>
+            <div class="flex items-center space-x-3.5">
+                <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30 border border-indigo-400/30">
+                    <i data-lucide="calculator" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">Aplikasi Akumulasi TPP Pegawai</h1>
-                    <p class="text-xs text-indigo-300">Sistem Pengolahan Data Multi-Sheet & Deteksi Pintar</p>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-300">
+                            Aplikasi Rekapitulasi TPP
+                        </h1>
+                        <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">v2.6 Fix</span>
+                    </div>
+                    <p class="text-xs text-indigo-300/80 font-medium">Sistem Akumulasi Multi-Sheet & Deteksi Pintar Rekapitulasi Keuangan</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 text-xs bg-indigo-950/60 px-3 py-1.5 rounded-full border border-indigo-700/50">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-indigo-200">Ready for GitHub Pages Deployment</span>
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2 text-xs bg-indigo-950/80 px-3.5 py-1.5 rounded-full border border-indigo-700/50 shadow-inner">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-indigo-200 font-medium">GitHub Pages Ready</span>
+                </div>
             </div>
         </div>
     </header>
@@ -40,71 +54,74 @@
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-6">
 
         <!-- Top Action Panel -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="glass-card rounded-2xl shadow-sm border border-slate-200/80 p-6 flex flex-col md:flex-row items-center justify-between gap-5 transition-all hover:shadow-md">
             <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <label class="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-lg transition-all shadow-sm flex items-center justify-center space-x-2 w-full sm:w-auto">
+                <label class="cursor-pointer bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="file-up" class="w-5 h-5"></i>
-                    <span>1. Pilih File Excel (.xlsx / .xls)</span>
+                    <span>1. Unggah Excel (.xlsx / .xls)</span>
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
                 </label>
-                <button id="btnExport" disabled class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium px-5 py-2.5 rounded-lg transition-all shadow-sm flex items-center justify-center space-x-2 w-full sm:w-auto">
+                <button id="btnExport" disabled class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:from-emerald-600 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="download" class="w-5 h-5"></i>
                     <span>2. Ekspor Hasil ke Excel</span>
                 </button>
             </div>
-            <div id="fileInfoText" class="text-sm text-slate-500 italic text-center md:text-right">
-                Belum ada file yang dipilih.
+            <div class="flex items-center space-x-2 bg-slate-100/80 px-4 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 w-full md:w-auto justify-center">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-slate-400"></i>
+                <span id="fileInfoText" class="truncate max-w-xs">Belum ada file yang dipilih</span>
             </div>
         </div>
 
         <!-- Summary Metric Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
+            <div class="glass-card p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4 hover:border-blue-300 transition-all">
+                <div class="p-3.5 bg-blue-50 text-blue-600 rounded-xl border border-blue-100">
                     <i data-lucide="users" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Pegawai</p>
-                    <p id="metricPegawai" class="text-xl font-bold text-slate-800">0</p>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Pegawai</p>
+                    <p id="metricPegawai" class="text-2xl font-extrabold text-slate-800">0</p>
                 </div>
             </div>
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
+            <div class="glass-card p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4 hover:border-amber-300 transition-all">
+                <div class="p-3.5 bg-amber-50 text-amber-600 rounded-xl border border-amber-100">
                     <i data-lucide="wallet" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total TPP Kotor</p>
-                    <p id="metricKotor" class="text-xl font-bold text-slate-800">Rp 0</p>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total TPP Kotor</p>
+                    <p id="metricKotor" class="text-xl font-extrabold text-slate-800">Rp 0</p>
                 </div>
             </div>
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                <div class="p-3 bg-rose-50 text-rose-600 rounded-lg">
+            <div class="glass-card p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4 hover:border-rose-300 transition-all">
+                <div class="p-3.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-100">
                     <i data-lucide="receipt" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total PPh 21</p>
-                    <p id="metricPajak" class="text-xl font-bold text-slate-800">Rp 0</p>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total PPh 21</p>
+                    <p id="metricPajak" class="text-xl font-extrabold text-slate-800">Rp 0</p>
                 </div>
             </div>
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+            <div class="glass-card p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4 hover:border-emerald-300 transition-all">
+                <div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
                     <i data-lucide="badge-check" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Netto Diterima</p>
-                    <p id="metricNetto" class="text-xl font-bold text-emerald-600">Rp 0</p>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Netto Diterima</p>
+                    <p id="metricNetto" class="text-xl font-extrabold text-emerald-600">Rp 0</p>
                 </div>
             </div>
         </div>
 
         <!-- Data Table Card -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <h2 class="font-semibold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="table" class="w-5 h-5 text-indigo-600"></i>
-                    <span>Tabel Hasil Rekapitulasi TPP</span>
-                </h2>
-                <div id="sheetStatusBadge" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-100 font-medium">
+        <div class="glass-card rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex-1 flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="flex items-center space-x-2.5">
+                    <div class="p-1.5 bg-indigo-100 text-indigo-700 rounded-lg">
+                        <i data-lucide="table" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">Tabel Hasil Rekapitulasi TPP</h2>
+                </div>
+                <div id="sheetStatusBadge" class="text-xs bg-indigo-50 text-indigo-700 px-3.5 py-1.5 rounded-full border border-indigo-200/60 font-semibold shadow-sm">
                     Sheet Terpilih: -
                 </div>
             </div>
@@ -113,7 +130,7 @@
             <div class="overflow-x-auto flex-1">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase tracking-wider">
+                        <tr class="bg-slate-900 text-slate-200 font-bold uppercase tracking-wider border-b border-slate-800 text-[11px]">
                             <th class="py-3.5 px-4">Kode Peg.</th>
                             <th class="py-3.5 px-4">NIP</th>
                             <th class="py-3.5 px-4">Nama Pegawai</th>
@@ -128,10 +145,12 @@
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 text-slate-700">
                         <tr>
-                            <td colspan="10" class="py-12 text-center text-slate-400">
-                                <div class="flex flex-col items-center justify-center space-y-2">
-                                    <i data-lucide="folder-open" class="w-10 h-10 stroke-1 text-slate-300"></i>
-                                    <p>Silakan upload file Excel untuk memulai akumulasi data.</p>
+                            <td colspan="10" class="py-16 text-center text-slate-400">
+                                <div class="flex flex-col items-center justify-center space-y-3">
+                                    <div class="p-4 bg-slate-100 rounded-full border border-slate-200">
+                                        <i data-lucide="folder-open" class="w-8 h-8 stroke-1 text-slate-400"></i>
+                                    </div>
+                                    <p class="font-medium">Silakan unggah file Excel untuk memulai proses akumulasi data TPP.</p>
                                 </div>
                             </td>
                         </tr>
@@ -142,33 +161,35 @@
     </main>
 
     <!-- Modal 1: Pemilih Sheet -->
-    <div id="modalSheetSelect" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 transform transition-all">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="layers" class="w-5 h-5 text-indigo-600"></i>
-                    <h3 class="font-bold text-slate-800">Pilih Sheet Excel</h3>
+    <div id="modalSheetSelect" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md flex items-center justify-center hidden z-50 p-4 transition-all">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 transform transition-all">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-indigo-100 text-indigo-700 rounded-xl">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-base">Pilih Sheet Excel</h3>
                 </div>
-                <button onclick="closeModal('modalSheetSelect')" class="text-slate-400 hover:text-slate-600">
+                <button onclick="closeModal('modalSheetSelect')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-200/50">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="p-6">
-                <p class="text-xs text-slate-500 mb-3">Centang / pilih sheet yang ingin diakumulasikan:</p>
-                <div id="sheetListContainer" class="max-h-60 overflow-y-auto space-y-2 border border-slate-200 rounded-xl p-3 bg-slate-50/50">
+                <p class="text-xs font-medium text-slate-500 mb-3">Pilih / centang sheet yang akan diakumulasikan:</p>
+                <div id="sheetListContainer" class="max-h-60 overflow-y-auto space-y-2 border border-slate-200 rounded-2xl p-3 bg-slate-50/50">
                     <!-- Checkbox items injected here -->
                 </div>
-                <div class="flex justify-between items-center mt-4">
-                    <div class="space-x-2">
-                        <button onclick="toggleSelectAllSheets(true)" class="text-xs font-medium text-indigo-600 hover:underline">Pilih Semua</button>
+                <div class="flex justify-between items-center mt-4 px-1">
+                    <div class="space-x-3">
+                        <button onclick="toggleSelectAllSheets(true)" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Pilih Semua</button>
                         <span class="text-slate-300">|</span>
-                        <button onclick="toggleSelectAllSheets(false)" class="text-xs font-medium text-slate-500 hover:underline">Kosongkan</button>
+                        <button onclick="toggleSelectAllSheets(false)" class="text-xs font-semibold text-slate-500 hover:text-slate-700">Kosongkan</button>
                     </div>
                 </div>
             </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
-                <button onclick="closeModal('modalSheetSelect')" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition-all">Batal</button>
-                <button id="btnConfirmSheets" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition-all flex items-center space-x-1.5">
+            <div class="p-5 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                <button onclick="closeModal('modalSheetSelect')" class="px-5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200/60 rounded-xl transition-all">Batal</button>
+                <button id="btnConfirmSheets" class="px-6 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/25 transition-all flex items-center space-x-2">
                     <i data-lucide="play" class="w-4 h-4"></i>
                     <span>Proses Sheet Terpilih</span>
                 </button>
@@ -177,27 +198,28 @@
     </div>
 
     <!-- Modal 2: Deteksi NIP Ganda -->
-    <div id="modalDoubleNip" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100">
-            <div class="p-6 bg-amber-50 border-b border-amber-100 flex items-center space-x-3">
-                <div class="p-2.5 bg-amber-100 text-amber-700 rounded-xl">
-                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+    <div id="modalDoubleNip" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-amber-100">
+            <div class="p-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white flex items-center space-x-3.5">
+                <div class="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-amber-900">Peringatan NIP Ganda!</h3>
-                    <p class="text-xs text-amber-700">Ditemukan data pegawai ganda pada bulan/sheet yang sama</p>
+                    <h3 class="font-extrabold text-base">Peringatan NIP Ganda!</h3>
+                    <p class="text-xs text-amber-100 font-medium">Ditemukan data pegawai ganda pada bulan/sheet yang sama</p>
                 </div>
             </div>
             <div class="p-6">
-                <div id="doubleNipList" class="max-h-60 overflow-y-auto space-y-2 text-xs text-slate-700 border border-slate-200 rounded-xl p-3 bg-slate-50">
+                <div id="doubleNipList" class="max-h-60 overflow-y-auto space-y-2 text-xs border border-slate-200 rounded-2xl p-3 bg-slate-50">
                     <!-- List items injected here -->
                 </div>
-                <p class="text-xs text-slate-500 mt-4">
-                    <strong>Catatan:</strong> Status ganda ini dicatat pada kolom <strong>Catatan Peringatan</strong> serta di-highlight warna <span class="bg-amber-100 text-amber-800 font-semibold px-1 rounded">Kuning</span> di tabel dan hasil ekspor Excel.
-                </p>
+                <div class="mt-4 p-3 bg-amber-50 border border-amber-200/60 rounded-xl text-xs text-amber-800 flex items-start space-x-2">
+                    <i data-lucide="info" class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"></i>
+                    <span>Status NIP ganda dicatat pada kolom <strong>Catatan Peringatan</strong> serta di-highlight warna <strong>Kuning</strong> di tabel.</span>
+                </div>
             </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-                <button onclick="closeModal('modalDoubleNip')" class="px-5 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-sm transition-all">
+            <div class="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('modalDoubleNip')" class="px-6 py-2.5 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-lg shadow-amber-600/20 transition-all">
                     Mengerti & Lanjutkan
                 </button>
             </div>
@@ -205,32 +227,32 @@
     </div>
 
     <!-- Modal 3: Deteksi TPP Nol -->
-    <div id="modalZeroTpp" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100">
-            <div class="p-6 bg-rose-50 border-b border-rose-100 flex items-center space-x-3">
-                <div class="p-2.5 bg-rose-100 text-rose-700 rounded-xl">
-                    <i data-lucide="user-x" class="w-6 h-6"></i>
+    <div id="modalZeroTpp" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-rose-100">
+            <div class="p-6 bg-gradient-to-r from-rose-600 to-red-600 text-white flex items-center space-x-3.5">
+                <div class="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                    <i data-lucide="user-x" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-rose-900">Deteksi Pegawai TPP Rp 0!</h3>
-                    <p class="text-xs text-rose-700">Ditemukan pegawai dengan total penerimaan TPP bernilai nol</p>
+                    <h3 class="font-extrabold text-base">Deteksi Pegawai TPP Rp 0!</h3>
+                    <p class="text-xs text-rose-100 font-medium">Ditemukan pegawai dengan total penerimaan TPP bernilai nol</p>
                 </div>
             </div>
             <div class="p-6">
-                <p class="text-xs text-slate-600 mb-3">Berikut adalah daftar pegawai yang hasil penerimaan TPP Netto-nya bernilai <strong>Rp 0</strong>:</p>
-                <div id="zeroTppList" class="max-h-56 overflow-y-auto space-y-2 text-xs text-slate-700 border border-slate-200 rounded-xl p-3 bg-slate-50">
+                <p class="text-xs font-medium text-slate-600 mb-3">Daftar pegawai yang penerimaan TPP Netto-nya bernilai <strong>Rp 0</strong>:</p>
+                <div id="zeroTppList" class="max-h-56 overflow-y-auto space-y-2 text-xs border border-slate-200 rounded-2xl p-3 bg-slate-50">
                     <!-- List items injected here -->
                 </div>
-                <div class="mt-4 p-3 bg-slate-100 rounded-xl text-xs text-slate-600 flex items-start space-x-2">
-                    <i data-lucide="info" class="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0"></i>
-                    <span>Apakah Anda ingin menghapus seluruh data pegawai berpenerimaan Rp 0 ini dari hasil rekapitulasi?</span>
+                <div class="mt-4 p-3.5 bg-rose-50 border border-rose-200/60 rounded-2xl text-xs text-rose-800 flex items-start space-x-2.5">
+                    <i data-lucide="help-circle" class="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0"></i>
+                    <span>Apakah Anda ingin menghapus data pegawai berpenerimaan Rp 0 ini dari rekapitulasi?</span>
                 </div>
             </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
-                <button onclick="keepZeroTppData()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition-all">
-                    Biarkan Tetap Ada (Simpan 0)
+            <div class="p-5 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                <button onclick="keepZeroTppData()" class="px-5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200/60 rounded-xl transition-all">
+                    Biarkan Tetap Ada
                 </button>
-                <button onclick="deleteZeroTppData()" class="px-5 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition-all flex items-center space-x-1.5">
+                <button onclick="deleteZeroTppData()" class="px-6 py-2.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg shadow-rose-600/20 transition-all flex items-center space-x-2">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                     <span>Hapus Data TPP Rp 0</span>
                 </button>
@@ -239,7 +261,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    <footer class="bg-white border-t border-slate-200/80 py-4 text-center text-xs text-slate-500 font-medium">
         &copy; 2026 Aplikasi Rekapitulasi TPP Pegawai • Powered by SheetJS & Tailwind CSS
     </footer>
 
@@ -254,7 +276,7 @@
         // Initialize Lucide Icons
         lucide.createIcons();
 
-        // Event Listener: File Input
+        // Event Listener
         document.getElementById('excelFileInput').addEventListener('change', handleFileSelect);
         document.getElementById('btnConfirmSheets').addEventListener('click', processSelectedSheets);
         document.getElementById('btnExport').addEventListener('click', exportToExcel);
@@ -263,14 +285,14 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            document.getElementById('fileInfoText').innerText = `File: ${file.name}`;
+            document.getElementById('fileInfoText').innerText = file.name;
             const reader = new FileReader();
 
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
                 workbookGlobal = XLSX.read(data, { type: 'array' });
                 
-                // Show Sheet Selection Modal
+                // UNCHECK SEMUA SHEET SECARA DEFAULT KECUALI SHEET TERAKHIR AGAR TIDAK SALAH PROSES MULTI-SHEET
                 renderSheetCheckboxes(workbookGlobal.SheetNames);
                 openModal('modalSheetSelect');
             };
@@ -284,10 +306,14 @@
 
             sheetNames.forEach((sName, idx) => {
                 const item = document.createElement('label');
-                item.className = 'flex items-center space-x-3 p-2 bg-white rounded-lg border border-slate-200/80 hover:bg-indigo-50/50 cursor-pointer transition-all text-xs font-medium text-slate-700';
+                item.className = 'flex items-center space-x-3 p-2.5 bg-white rounded-xl border border-slate-200/80 hover:bg-indigo-50/50 cursor-pointer transition-all text-xs font-semibold text-slate-700';
+                
+                // Default: centang jika nama sheet mengandung "9" atau sheet paling akhir agar presisi
+                const isDefaultChecked = sName.includes('9 | 2026') || (idx === sheetNames.length - 1 && !sheetNames.some(s => s.includes('9 | 2026')));
+                
                 item.innerHTML = `
-                    <input type="checkbox" value="${sName}" checked class="sheet-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                    <span>${sName}</span>
+                    <input type="checkbox" data-sheetname="${encodeURIComponent(sName)}" ${isDefaultChecked ? 'checked' : ''} class="sheet-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                    <span class="truncate">${sName}</span>
                 `;
                 container.appendChild(item);
             });
@@ -307,7 +333,7 @@
 
         function processSelectedSheets() {
             const checkedBoxes = document.querySelectorAll('.sheet-checkbox:checked');
-            const selectedSheets = Array.from(checkedBoxes).map(cb => cb.value);
+            const selectedSheets = Array.from(checkedBoxes).map(cb => decodeURIComponent(cb.getAttribute('data-sheetname')));
 
             if (selectedSheets.length === 0) {
                 alert('Pilih minimal 1 sheet!');
@@ -315,9 +341,8 @@
             }
 
             closeModal('modalSheetSelect');
-            document.getElementById('sheetStatusBadge').innerText = `Sheet Terpilih (${selectedSheets.length}): ${selectedSheets.slice(0, 3).join(', ')}${selectedSheets.length > 3 ? '...' : ''}`;
+            document.getElementById('sheetStatusBadge').innerText = `Sheet Terpilih (${selectedSheets.length}): ${selectedSheets.slice(0, 2).join(', ')}${selectedSheets.length > 2 ? '...' : ''}`;
 
-            // Process Execution
             setTimeout(() => {
                 executeDataAggregation(selectedSheets);
             }, 100);
@@ -353,14 +378,20 @@
         }
 
         function executeDataAggregation(selectedSheets) {
+            // BESIKAN (RESET) SEMUA STATE GLOBAL SEBELUM PROSES BARU
+            globalProcessedData = [];
+            doubleNipGlobalInfo = {};
+            zeroTppPegawaiList = [];
+
             let records = [];
             let nipMonthTracker = {};
 
             selectedSheets.forEach((sheetName, sheetIdx) => {
                 const sheet = workbookGlobal.Sheets[sheetName];
+                if (!sheet) return;
+
                 const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                // Detect header row index
                 let headerIdx = null;
                 for (let r = 0; r < Math.min(5, rawData.length); r++) {
                     const rowStr = (rawData[r] || []).map(v => String(v).toLowerCase()).join(' ');
@@ -373,7 +404,6 @@
                 if (headerIdx !== null) {
                     const jsonObjects = XLSX.utils.sheet_to_json(sheet, { range: headerIdx });
                     jsonObjects.forEach(row => {
-                        // Dynamic key finder
                         const keys = Object.keys(row);
                         const cKd = keys.find(k => k.toLowerCase().includes('kode'));
                         const cNip = keys.find(k => k.toLowerCase().includes('nip'));
@@ -386,7 +416,7 @@
                         const cTerima = keys.find(k => k.toLowerCase().includes('terima'));
                         const cKets = keys.filter(k => k.toLowerCase().includes('keterangan'));
 
-                        if (!cNama) return;
+                        if (!cNama || !row[cNama]) return;
 
                         const kdVal = cKd && row[cKd] ? String(row[cKd]).trim() : '';
                         const nipVal = cNip && row[cNip] ? String(row[cNip]).replace(/'/g, '').trim() : '';
@@ -428,7 +458,6 @@
                         });
                     });
                 } else {
-                    // Fallback for sheets without header
                     rawData.forEach(row => {
                         if (!row || row.length === 0) return;
                         const kdVal = row[0] ? String(row[0]).trim() : '';
@@ -466,7 +495,6 @@
                 }
             });
 
-            // Double NIP Tracker Evaluation
             doubleNipGlobalInfo = {};
             Object.keys(nipMonthTracker).forEach(pair => {
                 if (nipMonthTracker[pair] > 1) {
@@ -476,7 +504,6 @@
                 }
             });
 
-            // Grouping by KeyId
             let groupedMap = {};
             records.forEach(rec => {
                 if (!groupedMap[rec.keyId]) {
@@ -488,7 +515,6 @@
             let aggregatedList = [];
             Object.keys(groupedMap).forEach(keyId => {
                 let recs = groupedMap[keyId];
-                // Sort by SheetIdx ascending
                 recs.sort((a, b) => a.sheetIdx - b.sheetIdx);
 
                 const lastRec = recs[recs.length - 1];
@@ -501,7 +527,6 @@
                 const totalBpjs4 = recs.reduce((sum, r) => sum + r.bpjs4, 0);
                 const totalTppTerima = recs.reduce((sum, r) => sum + r.tppTerima, 0);
 
-                // Find last non-empty ketStatus
                 let mutakhirKet = '';
                 for (let i = recs.length - 1; i >= 0; i--) {
                     if (recs[i].ketStatus && recs[i].ketStatus.trim() !== '') {
@@ -510,11 +535,9 @@
                     }
                 }
 
-                // Check for Warning Conditions
                 const isDouble = doubleNipGlobalInfo[lastRec.nip] ? true : false;
                 const isZeroTpp = totalTppTerima === 0;
 
-                // Build Warning Catatan List
                 let warningList = [];
                 if (isDouble) {
                     const sheetsStr = doubleNipGlobalInfo[lastRec.nip].join(', ');
@@ -547,19 +570,15 @@
                 });
             });
 
-            // Sort list by Kode Pegawai (KP00000001 on top)
+            // Urutkan Kode Pegawai (KP00000001 di paling atas)
             aggregatedList.sort((a, b) => a.sortKey - b.sortKey);
 
             globalProcessedData = aggregatedList;
-
-            // Check for Zero TPP
             zeroTppPegawaiList = globalProcessedData.filter(item => item.isZeroTpp);
 
-            // Render Table & Metrics
             renderResultTable();
             updateMetrics();
 
-            // Trigger Pop-ups if warnings detected
             if (zeroTppPegawaiList.length > 0) {
                 renderZeroTppModalList();
                 openModal('modalZeroTpp');
@@ -576,7 +595,7 @@
             if (globalProcessedData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="10" class="py-12 text-center text-slate-400">
+                        <td colspan="10" class="py-12 text-center text-slate-400 font-medium">
                             Tidak ada data untuk ditampilkan.
                         </td>
                     </tr>`;
@@ -589,25 +608,26 @@
             globalProcessedData.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = item.isDouble 
-                    ? 'bg-amber-50/80 hover:bg-amber-100/80 font-medium' 
-                    : (item.isZeroTpp ? 'bg-rose-50/50 hover:bg-rose-100/50' : 'hover:bg-slate-50 transition-all');
+                    ? 'bg-amber-50/90 hover:bg-amber-100/90 font-medium transition-all' 
+                    : (item.isZeroTpp ? 'bg-rose-50/70 hover:bg-rose-100/70 transition-all' : 'hover:bg-slate-50/80 transition-all');
 
                 tr.innerHTML = `
-                    <td class="py-3 px-4 font-mono">${item.kdPegawai || '-'}</td>
-                    <td class="py-3 px-4 font-mono">${item.nip || '-'}</td>
-                    <td class="py-3 px-4 font-medium text-slate-900">${item.namaPegawai}</td>
-                    <td class="py-3 px-4 text-center">${item.masaKerja}</td>
-                    <td class="py-3 px-4 text-center font-bold">${item.jumlahBulan}</td>
-                    <td class="py-3 px-4 text-right font-mono">Rp ${item.tpp100.toLocaleString('id-ID')}</td>
-                    <td class="py-3 px-4 text-right font-mono text-rose-600">Rp ${item.pph21.toLocaleString('id-ID')}</td>
-                    <td class="py-3 px-4 text-right font-mono font-bold ${item.isZeroTpp ? 'text-rose-600' : 'text-emerald-600'}">Rp ${item.tppTerima.toLocaleString('id-ID')}</td>
-                    <td class="py-3 px-4 max-w-xs truncate">${item.ketStatus || '-'}</td>
-                    <td class="py-3 px-4 max-w-xs truncate font-semibold ${item.isZeroTpp ? 'text-rose-700' : (item.isDouble ? 'text-amber-800' : 'text-slate-400')}">
+                    <td class="py-3.5 px-4 font-mono font-semibold text-slate-600">${item.kdPegawai || '-'}</td>
+                    <td class="py-3.5 px-4 font-mono text-slate-600">${item.nip || '-'}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">${item.namaPegawai}</td>
+                    <td class="py-3.5 px-4 text-center font-medium">${item.masaKerja}</td>
+                    <td class="py-3.5 px-4 text-center font-extrabold text-indigo-700 bg-indigo-50/50 rounded-lg">${item.jumlahBulan}</td>
+                    <td class="py-3.5 px-4 text-right font-mono font-medium">Rp ${item.tpp100.toLocaleString('id-ID')}</td>
+                    <td class="py-3.5 px-4 text-right font-mono font-medium text-rose-600">Rp ${item.pph21.toLocaleString('id-ID')}</td>
+                    <td class="py-3.5 px-4 text-right font-mono font-bold ${item.isZeroTpp ? 'text-rose-600' : 'text-emerald-600'}">Rp ${item.tppTerima.toLocaleString('id-ID')}</td>
+                    <td class="py-3.5 px-4 max-w-xs truncate text-slate-600">${item.ketStatus || '-'}</td>
+                    <td class="py-3.5 px-4 max-w-xs truncate font-bold ${item.isZeroTpp ? 'text-rose-700' : (item.isDouble ? 'text-amber-800' : 'text-slate-300')}">
                         ${item.catatanPeringatan || '-'}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+            lucide.createIcons();
         }
 
         function updateMetrics() {
@@ -630,14 +650,14 @@
                 const pData = globalProcessedData.find(p => p.nip === nip);
                 const name = pData ? pData.namaPegawai : 'Pegawai';
                 const div = document.createElement('div');
-                div.className = 'p-2.5 bg-white rounded-lg border border-amber-200 flex justify-between items-center';
+                div.className = 'p-3 bg-white rounded-xl border border-amber-200 shadow-sm flex justify-between items-center';
                 div.innerHTML = `
                     <div>
                         <p class="font-bold text-amber-900">${name}</p>
                         <p class="font-mono text-[11px] text-slate-500">NIP: ${nip}</p>
                     </div>
-                    <span class="text-[11px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
-                        Di sheet: ${doubleNipGlobalInfo[nip].join(', ')}
+                    <span class="text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg">
+                        ${doubleNipGlobalInfo[nip].join(', ')}
                     </span>
                 `;
                 container.appendChild(div);
@@ -650,13 +670,13 @@
 
             zeroTppPegawaiList.forEach(p => {
                 const div = document.createElement('div');
-                div.className = 'p-2.5 bg-white rounded-lg border border-rose-200 flex justify-between items-center';
+                div.className = 'p-3 bg-white rounded-xl border border-rose-200 shadow-sm flex justify-between items-center';
                 div.innerHTML = `
                     <div>
                         <p class="font-bold text-slate-800">${p.namaPegawai}</p>
                         <p class="font-mono text-[11px] text-slate-500">${p.kdPegawai || '-'} | NIP: ${p.nip || '-'}</p>
                     </div>
-                    <span class="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full">
+                    <span class="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg">
                         TPP: Rp 0
                     </span>
                 `;
@@ -670,7 +690,6 @@
             updateMetrics();
             closeModal('modalZeroTpp');
 
-            // If double NIP warnings also exist, trigger it next
             if (Object.keys(doubleNipGlobalInfo).length > 0) {
                 renderDoubleNipModalList();
                 openModal('modalDoubleNip');
@@ -680,7 +699,6 @@
         function keepZeroTppData() {
             closeModal('modalZeroTpp');
 
-            // If double NIP warnings also exist, trigger it next
             if (Object.keys(doubleNipGlobalInfo).length > 0) {
                 renderDoubleNipModalList();
                 openModal('modalDoubleNip');
@@ -690,7 +708,6 @@
         function exportToExcel() {
             if (globalProcessedData.length === 0) return;
 
-            // Build Export Sheet Data
             const exportHeaders = [
                 "Kode Pegawai", "NIP", "Nama Pegawai", "Masa Kerja", "Golongan", "Jabatan",
                 "Unit Kerja", "Jumlah Bulan", "TPP 100%", "Pengurangan Pagu", "PPH 21",
@@ -719,11 +736,9 @@
             const wsData = [exportHeaders, ...exportRows];
             const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-            // Create Workbook & Append Sheet
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "REKAP AKUMULASI TPP");
 
-            // Save File
             XLSX.writeFile(wb, "REKAP_AKUMULASI_TPP_MUTAKHIR.xlsx");
         }
     </script>
