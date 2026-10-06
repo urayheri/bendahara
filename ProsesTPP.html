@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP-TPP Flexible Engine - Dinas Pendidikan dan Kebudayaan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS (xlsx.full.min.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: #fff !important; color: #000 !important; }
+        }
+        .print-only { display: none; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .text-justify-custom { text-align: justify; text-justify: inter-word; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+<!-- Top Navigation Header -->
+<header class="bg-slate-900 text-white shadow-md sticky top-0 z-50 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <i data-lucide="calculator" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">SIP-TPP DISDIKBUD</h1>
+                <p class="text-xs text-slate-400">System Generator & Rekapitulasi TPP Multi-Bulan</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <button onclick="toggleModal('modalSignatures')" class="flex items-center space-x-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">
+                <i data-lucide="settings" class="w-4 h-4 text-blue-400"></i>
+                <span class="hidden sm:inline">Pengaturan KOP, Pejabat & Bulan</span>
+            </button>
+            <button onclick="loadDemoData()" class="flex items-center space-x-1.5 text-xs bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 px-3 py-1.5 rounded-lg transition font-medium">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Load Demo Data</span>
+            </button>
+            <button onclick="exportMultiSheetExcel()" id="btnExport" disabled class="flex items-center space-x-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3.5 py-1.5 rounded-lg transition font-medium shadow-sm">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Export Multi-Sheet Excel</span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Modal Pengaturan -->
+<div id="modalSignatures" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-5 border border-slate-200 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="settings" class="w-5 h-5 text-blue-600"></i>
+                <h3 class="font-bold text-slate-800 text-base">Pengaturan KOP, Pejabat & Bulan TPP</h3>
+            </div>
+            <button onclick="toggleModal('modalSignatures')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Section KOP -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+            <span class="font-semibold text-slate-800 flex items-center gap-1.5 text-xs">
+                <i data-lucide="image" class="w-3.5 h-3.5 text-blue-600"></i>
+                Logo Pemda & Teks KOP Surat
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-1">Upload Logo Pemda (PNG/JPG)</label>
+                    <input type="file" id="logoUploader" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Baris 1 (Pemerintah)</label>
+                    <input type="text" id="cfgKopLine1" value="PEMERINTAH KABUPATEN SAMBAS" onchange="updateConfigState()" class="w-full px-2.5 py-1 border border-slate-300 rounded text-xs">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Baris 2 (Dinas)</label>
+                    <input type="text" id="cfgKopLine2" value="DINAS PENDIDIKAN DAN KEBUDAYAAN" onchange="updateConfigState()" class="w-full px-2.5 py-1 border border-slate-300 rounded text-xs font-bold">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Baris 3 (Alamat)</label>
+                    <input type="text" id="cfgKopLine3" value="Jalan Pembangunan Sambas, Kode Pos 79460" onchange="updateConfigState()" class="w-full px-2.5 py-1 border border-slate-300 rounded text-xs">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Baris 4 (Email)</label>
+                    <input type="text" id="cfgKopLine4" value="e-mail: dikbud.sbs@gmail.com, diknas_sambas@yahoo.co.id" onchange="updateConfigState()" class="w-full px-2.5 py-1 border border-slate-300 rounded text-xs">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Baris 5 (Laman/Website)</label>
+                    <input type="text" id="cfgKopLine5" value="Laman: https://disdikbud.sambas.go.id" onchange="updateConfigState()" class="w-full px-2.5 py-1 border border-slate-300 rounded text-xs">
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Kadis / KPA -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                <span class="font-semibold text-slate-800 flex items-center gap-1.5 text-xs">
+                    <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-600"></i>
+                    Kepala Dinas / KPA
+                </span>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Nama Lengkap & Gelar</label>
+                    <input type="text" id="cfgNamaKadis" value="ARSYAD, S.Pd., M.M." onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs font-semibold">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">NIP</label>
+                    <input type="text" id="cfgNipKadis" value="196812311995121011" onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Pangkat / Golongan</label>
+                    <input type="text" id="cfgPangkatKadis" value="Pembina Utama Muda, IV/c" onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs">
+                </div>
+            </div>
+
+            <!-- Bendahara -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                <span class="font-semibold text-slate-800 flex items-center gap-1.5 text-xs">
+                    <i data-lucide="landmark" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    Bendahara Pengeluaran
+                </span>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">Nama Lengkap & Gelar</label>
+                    <input type="text" id="cfgNamaBendahara" value="NUR INDAH SARI, S.Tr.Ak" onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs font-semibold">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-0.5">NIP</label>
+                    <input type="text" id="cfgNipBendahara" value="19970709 202012 2 021" onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs">
+                </div>
+            </div>
+
+            <!-- Bulan & Periode TPP -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 md:col-span-2">
+                <span class="font-semibold text-slate-800 flex items-center gap-1.5 text-xs">
+                    <i data-lucide="calendar-range" class="w-3.5 h-3.5 text-indigo-600"></i>
+                    Pengaturan Periode Bulan TPP yang Dicairkan (Otomatis / Manual)
+                </span>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] text-slate-500 mb-0.5">Bulan Pencairan (Auto/Otomatis)</label>
+                        <input type="text" id="cfgPeriodeLabel" value="Mei - Juni Tahun 2026" onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-500 mb-0.5">Kabupaten / Kota</label>
+                        <input type="text" id="cfgKotaDokumen" value="Sambas" onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-500 mb-0.5">Bulan & Tahun TTD Surat</label>
+                        <input type="text" id="cfgTanggalDokumen" value="September 2026" onchange="updateConfigState()" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-md text-xs">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-slate-100">
+            <button onclick="toggleModal('modalSignatures')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-xs shadow-sm transition">
+                Simpan & Terapkan Perubahan
+            </button>
+        </div>
+    </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6 no-print">
+
+<!-- Summary Cards -->
+<section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex justify-between items-center text-slate-500 mb-1">
+            <span class="text-xs font-medium">Pegawai</span>
+            <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
+        </div>
+        <span id="statPegawai" class="text-xl font-bold text-slate-800">0</span>
+        <span class="text-[10px] text-slate-400 mt-1">ASN Terdata</span>
+    </div>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex justify-between items-center text-slate-500 mb-1">
+            <span class="text-xs font-medium">TPP 100% (Kotor)</span>
+            <i data-lucide="wallet" class="w-4 h-4 text-indigo-500"></i>
+        </div>
+        <span id="statKotor" class="text-sm font-bold text-slate-800">Rp 0</span>
+        <span class="text-[10px] text-slate-400 mt-1">Pagu Sebelum Potongan</span>
+    </div>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex justify-between items-center text-slate-500 mb-1">
+            <span class="text-xs font-medium">Potongan PPh 21</span>
+            <i data-lucide="receipt" class="w-4 h-4 text-rose-500"></i>
+        </div>
+        <span id="statPph" class="text-sm font-bold text-rose-600">Rp 0</span>
+        <span class="text-[10px] text-slate-400 mt-1">Skema TER & Pasal 17</span>
+    </div>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex justify-between items-center text-slate-500 mb-1">
+            <span class="text-xs font-medium">BPJS (1% + 4%)</span>
+            <i data-lucide="shield-check" class="w-4 h-4 text-amber-500"></i>
+        </div>
+        <span id="statBpjs" class="text-sm font-bold text-amber-600">Rp 0</span>
+        <span class="text-[10px] text-slate-400 mt-1">Iuran BPJS Kesehatan</span>
+    </div>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex justify-between items-center text-slate-500 mb-1">
+            <span class="text-xs font-medium">TPP Netto Diterima</span>
+            <i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-500"></i>
+        </div>
+        <span id="statNetto" class="text-sm font-bold text-emerald-600">Rp 0</span>
+        <span class="text-[10px] text-slate-400 mt-1">Total Siap Salur</span>
+    </div>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex justify-between items-center text-slate-500 mb-1">
+            <span class="text-xs font-medium">Audit Selisih</span>
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
+        </div>
+        <span id="statSelisih" class="text-sm font-bold text-amber-600">0 Record</span>
+        <span class="text-[10px] text-slate-400 mt-1" id="statSelisihAmount">Total Selisih: Rp 0</span>
+    </div>
+</section>
+
+<!-- Upload Area -->
+<section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="w-full md:w-2/3 space-y-1">
+            <h2 class="text-base font-semibold text-slate-800">Unggah Data Rekapitulasi TPP Enterprise</h2>
+            <p class="text-xs text-slate-500">
+                Unggah berkas Excel data sumber (<code class="bg-slate-100 px-1 py-0.5 rounded text-slate-700">REKAP_AKUMULASI_TPP_ENTERPRISE.xlsx</code>). Sistem secara otomatis mendeteksi periode bulan dan memperbarui dokumen SPTJM.
+            </p>
+        </div>
+        <div class="w-full md:w-1/3">
+            <label for="excelFile" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/50 rounded-xl p-4 cursor-pointer transition text-center group">
+                <i data-lucide="file-up" class="w-8 h-8 text-slate-400 group-hover:text-blue-600 mb-1 transition"></i>
+                <span class="text-xs font-medium text-slate-600 group-hover:text-blue-700">Pilih / Drop File Excel</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">Format .xlsx atau .xls</span>
+                <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden" onchange="handleFileUpload(event)">
+            </label>
+        </div>
+    </div>
+</section>
+
+<!-- Navigation Tabs untuk Seluruh Sheet Wajib -->
+<section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="border-b border-slate-200 bg-slate-50/50 px-3 pt-3 flex space-x-1 overflow-x-auto">
+        <button onclick="switchTab('tab-audit')" id="tabBtn-audit" class="tab-btn px-3 py-2 text-xs font-semibold rounded-t-lg border-b-2 border-blue-600 text-blue-600 bg-white shadow-sm flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
+            <span>Data & Audit Rekonsiliasi</span>
+        </button>
+        <button onclick="switchTab('tab-ter')" id="tabBtn-ter" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="table" class="w-3.5 h-3.5"></i>
+            <span>TER</span>
+        </button>
+        <button onclick="switchTab('tab-pasal17')" id="tabBtn-pasal17" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="file-spreadsheets" class="w-3.5 h-3.5"></i>
+            <span>PASAL 17</span>
+        </button>
+        <button onclick="switchTab('tab-pensiun')" id="tabBtn-pensiun" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="user-minus" class="w-3.5 h-3.5"></i>
+            <span>DENGAN PENSIUN</span>
+        </button>
+        <button onclick="switchTab('tab-tanpasiun')" id="tabBtn-tanpasiun" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+            <span>TANPA PENSIUN</span>
+        </button>
+        <button onclick="switchTab('tab-1bulan')" id="tabBtn-1bulan" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>1 BULAN</span>
+        </button>
+        <button onclick="switchTab('tab-2bulan')" id="tabBtn-2bulan" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="calendar-range" class="w-3.5 h-3.5"></i>
+            <span>2 BULAN / AKUMULASI</span>
+        </button>
+        <button onclick="switchTab('tab-tanpabpjs')" id="tabBtn-tanpabpjs" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="shield-off" class="w-3.5 h-3.5"></i>
+            <span>TANPA BPJS 4%</span>
+        </button>
+        <button onclick="switchTab('tab-rekap')" id="tabBtn-rekap" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+            <span>REKAP TPP</span>
+        </button>
+        <button onclick="switchTab('tab-bank')" id="tabBtn-bank" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+            <span>TRANSFER BANK</span>
+        </button>
+        <button onclick="switchTab('tab-kwitansi')" id="tabBtn-kwitansi" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+            <span>KWITANSI</span>
+        </button>
+        <button onclick="switchTab('tab-sptjm')" id="tabBtn-sptjm" class="tab-btn px-3 py-2 text-xs font-medium rounded-t-lg text-slate-500 hover:text-slate-700 flex items-center space-x-1.5 whitespace-nowrap">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>SPTJM</span>
+        </button>
+    </div>
+
+    <!-- Tab Content 1: Audit Data -->
+    <div id="tab-audit" class="tab-content p-4">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-3 mb-4">
+            <div class="flex items-center space-x-2 w-full md:w-auto">
+                <input type="text" id="searchInput" placeholder="Cari NIP / Nama / Jabatan / Unit..." onkeyup="filterData()" class="w-full md:w-72 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="filterSelisih" onchange="filterData()" class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="all">Semua Data (Selisih & Normal)</option>
+                    <option value="selisih">Hanya Ada Selisih Hitung</option>
+                    <option value="normal">Normal (Sesuai Formula)</option>
+                </select>
+            </div>
+            <div class="text-xs text-slate-500">
+                Menampilkan <span id="recordCount" class="font-bold text-slate-700">0</span> pegawai
+            </div>
+        </div>
+
+        <div class="overflow-x-auto max-h-[500px]">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-100 sticky top-0 z-10 text-slate-600 font-semibold border-b border-slate-200">
+                    <tr>
+                        <th class="p-2.5 w-12 text-center">No</th>
+                        <th class="p-2.5">NIP & Nama</th>
+                        <th class="p-2.5">Jabatan / Gol</th>
+                        <th class="p-2.5">Unit Kerja / Satker</th>
+                        <th class="p-2.5 text-right">TPP 100%</th>
+                        <th class="p-2.5 text-right">PPh 21</th>
+                        <th class="p-2.5 text-right">BPJS 1%</th>
+                        <th class="p-2.5 text-right">BPJS 4%</th>
+                        <th class="p-2.5 text-right">Netto Excel</th>
+                        <th class="p-2.5 text-right">Netto Formula</th>
+                        <th class="p-2.5 text-center">Audit Selisih</th>
+                    </tr>
+                </thead>
+                <tbody id="tableAuditBody" class="divide-y divide-slate-200">
+                    <tr>
+                        <td colspan="11" class="text-center py-12 text-slate-400">
+                            Belum ada data TPP yang diunggah. Silakan upload file Excel atau klik "Load Demo Data".
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: TER -->
+    <div id="tab-ter" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Tabel Acuan Tarif Efektif Rata-Rata (TER A, B, C)</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">Jenis TER</th>
+                        <th class="p-2 border border-slate-200">Penghasilan Bruto Min</th>
+                        <th class="p-2 border border-slate-200">Penghasilan Bruto Max</th>
+                        <th class="p-2 border border-slate-200">Tarif TER</th>
+                        <th class="p-2 border border-slate-200">Kategori PTKP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="p-2 border">TER A</td><td class="p-2 border">Rp 0</td><td class="p-2 border">Rp 5.400.000</td><td class="p-2 border">0.00%</td><td class="p-2 border">TK/0, TK/1, K/0</td></tr>
+                    <tr><td class="p-2 border">TER A</td><td class="p-2 border">Rp 5.400.001</td><td class="p-2 border">Rp 5.650.000</td><td class="p-2 border">0.25%</td><td class="p-2 border">TK/0, TK/1, K/0</td></tr>
+                    <tr><td class="p-2 border">TER A</td><td class="p-2 border">Rp 5.650.001</td><td class="p-2 border">Rp 5.950.000</td><td class="p-2 border">0.50%</td><td class="p-2 border">TK/0, TK/1, K/0</td></tr>
+                    <tr><td class="p-2 border">TER B</td><td class="p-2 border">Rp 6.300.001</td><td class="p-2 border">Rp 6.750.000</td><td class="p-2 border">1.00%</td><td class="p-2 border">TK/3, K/1, K/2</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: PASAL 17 -->
+    <div id="tab-pasal17" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Simulasi Perhitungan PPh Pasal 17</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">No</th>
+                        <th class="p-2 border border-slate-200">NIP & Nama</th>
+                        <th class="p-2 border border-slate-200">Bruto Setahun</th>
+                        <th class="p-2 border border-slate-200">PTKP</th>
+                        <th class="p-2 border border-slate-200">PPh Terutang</th>
+                    </tr>
+                </thead>
+                <tbody id="tablePasal17Body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: DENGAN PENSIUN -->
+    <div id="tab-pensiun" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Perhitungan TPP Dengan Penyesuaian Pensiun & Mutasi</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">No</th>
+                        <th class="p-2 border border-slate-200">NIP & Nama</th>
+                        <th class="p-2 border border-slate-200">Gol/Jabatan</th>
+                        <th class="p-2 border border-slate-200">TPP Kotor</th>
+                        <th class="p-2 border border-slate-200">PPh 21</th>
+                        <th class="p-2 border border-slate-200">BPJS 1%</th>
+                        <th class="p-2 border border-slate-200">BPJS 4%</th>
+                        <th class="p-2 border border-slate-200">TPP Diterima</th>
+                    </tr>
+                </thead>
+                <tbody id="tablePensiunBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: TANPA PENSIUN -->
+    <div id="tab-tanpasiun" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Perhitungan TPP Pegawai Aktif (Tanpa Pensiun)</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">No</th>
+                        <th class="p-2 border border-slate-200">NIP & Nama</th>
+                        <th class="p-2 border border-slate-200">Gol/Jabatan</th>
+                        <th class="p-2 border border-slate-200">TPP Kotor</th>
+                        <th class="p-2 border border-slate-200">PPh 21</th>
+                        <th class="p-2 border border-slate-200">BPJS 1%</th>
+                        <th class="p-2 border border-slate-200">BPJS 4%</th>
+                        <th class="p-2 border border-slate-200">TPP Diterima Formula</th>
+                    </tr>
+                </thead>
+                <tbody id="tableTanpaPensiunBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: 1 BULAN -->
+    <div id="tab-1bulan" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Rincian Perhitungan Pencairan 1 Bulan</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">No</th>
+                        <th class="p-2 border border-slate-200">NIP & Nama</th>
+                        <th class="p-2 border border-slate-200">TPP Kotor 1 Bulan</th>
+                        <th class="p-2 border border-slate-200">PPh 21</th>
+                        <th class="p-2 border border-slate-200">BPJS 1%</th>
+                        <th class="p-2 border border-slate-200">Netto Diterima</th>
+                    </tr>
+                </thead>
+                <tbody id="table1BulanBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: 2 BULAN / AKUMULASI -->
+    <div id="tab-2bulan" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Rincian Perhitungan Akumulasi Multi-Bulan</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">No</th>
+                        <th class="p-2 border border-slate-200">NIP & Nama</th>
+                        <th class="p-2 border border-slate-200">Total TPP Kotor</th>
+                        <th class="p-2 border border-slate-200">Total PPh 21</th>
+                        <th class="p-2 border border-slate-200">Total BPJS 1%</th>
+                        <th class="p-2 border border-slate-200">Total BPJS 4%</th>
+                        <th class="p-2 border border-slate-200 bg-emerald-50">Total Netto Diterima</th>
+                    </tr>
+                </thead>
+                <tbody id="table2BulanBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: TANPA BPJS 4% -->
+    <div id="tab-tanpabpjs" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Daftar Perhitungan TPP Tanpa Pengurang BPJS 4%</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">No</th>
+                        <th class="p-2 border border-slate-200">NIP & Nama</th>
+                        <th class="p-2 border border-slate-200">TPP Kotor</th>
+                        <th class="p-2 border border-slate-200">PPh 21</th>
+                        <th class="p-2 border border-slate-200">BPJS 1%</th>
+                        <th class="p-2 border border-slate-200 font-bold">Netto Diterima (Tanpa BPJS 4%)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableTanpaBpjsBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: REKAP TPP -->
+    <div id="tab-rekap" class="tab-content p-4 hidden">
+        <h3 class="font-semibold text-xs mb-2 text-slate-700">Rekapitulasi TPP Per Satker / SKPD</h3>
+        <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                <thead class="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                        <th class="p-2 border border-slate-200">No</th>
+                        <th class="p-2 border border-slate-200">NIP</th>
+                        <th class="p-2 border border-slate-200">Nama Pegawai</th>
+                        <th class="p-2 border border-slate-200">Nilai TPP Netto</th>
+                        <th class="p-2 border border-slate-200">Satker</th>
+                        <th class="p-2 border border-slate-200">SKPD</th>
+                    </tr>
+                </thead>
+                <tbody id="tableRekapBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: SPTJM View -->
+    <div id="tab-sptjm" class="tab-content p-6 hidden">
+        <div class="flex justify-end mb-4">
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 shadow-sm">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Cetak Dokumen SPTJM</span>
+            </button>
+        </div>
+        <div class="border border-slate-800 p-8 max-w-3xl mx-auto bg-white rounded-md shadow-sm font-serif">
+            <!-- Kop Surat -->
+            <div id="kopSptjmContainer" class="flex items-center border-b-4 border-double border-slate-900 pb-3 mb-6">
+                <div class="w-20 pr-3 flex-shrink-0">
+                    <img id="imgKopSptjm" src="" alt="Logo Pemda" class="w-16 h-auto mx-auto">
+                </div>
+                <div class="text-center flex-1 space-y-0.5">
+                    <h3 class="text-xs uppercase tracking-wider font-normal" id="dispKop1Sptjm">PEMERINTAH KABUPATEN SAMBAS</h3>
+                    <h2 class="text-base font-bold uppercase tracking-wide" id="dispKop2Sptjm">DINAS PENDIDIKAN DAN KEBUDAYAAN</h2>
+                    <p class="text-[11px]" id="dispKop3Sptjm">Jalan Pembangunan Sambas, Kode Pos 79460</p>
+                    <p class="text-[10px]" id="dispKop4Sptjm">e-mail: dikbud.sbs@gmail.com, diknas_sambas@yahoo.co.id</p>
+                    <p class="text-[10px]" id="dispKop5Sptjm">Laman: https://disdikbud.sambas.go.id</p>
+                </div>
+            </div>
+
+            <div class="text-center font-bold mb-6">
+                <h2 class="text-sm uppercase tracking-wide underline font-sans">SURAT PERNYATAAN TANGGUNG JAWAB MUTLAK</h2>
+            </div>
+
+            <p class="text-xs leading-relaxed mb-4">Yang bertanda tangan dibawah ini :</p>
+
+            <div class="space-y-1 text-xs pl-2 mb-6 font-sans">
+                <div class="grid grid-cols-12"><div class="col-span-3">Nama</div><div class="col-span-9" id="dispSptjmNama">: ARSYAD, S.Pd., M.M.</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">NIP</div><div class="col-span-9" id="dispSptjmNip">: 196812311995121011</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">Pangkat / Golongan</div><div class="col-span-9" id="dispSptjmPangkat">: Pembina Utama Muda, IV/c</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">Jabatan</div><div class="col-span-9">: Kepala Dinas Pendidikan dan Kebudayaan Kabupaten Sambas</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">Unit Kerja</div><div class="col-span-9">: Dinas Pendidikan dan Kebudayaan Kabupaten Sambas</div></div>
+            </div>
+
+            <p class="text-xs leading-relaxed mb-4 text-justify-custom">
+                Menyatakan dengan sesungguhnya bahwa saya bertanggungjawab penuh atas keabsahan dokumen yang saya buat untuk kelengkapan pembayaran Tambahan Penghasilan Pegawai berdasarkan Beban Kerja PNS Bulan <span class="font-bold" id="dispSptjmPeriode">Mei - Juni Tahun 2026</span> pada Dinas Pendidikan dan Kebudayaan Kabupaten Sambas.
+            </p>
+
+            <p class="text-xs leading-relaxed mb-10 text-justify-custom">
+                Apabila dikemudian hari ternyata surat ini tidak benar, maka saya akan mempertanggungjawabkan sesuai dengan ketentuan yang berlaku. Demikian Surat Pernyataan ini saya buat untuk dapat dipergunakan sebagaimana mestinya.
+            </p>
+
+            <div class="flex justify-end text-xs text-center font-sans">
+                <div class="w-72">
+                    <p class="mb-1" id="dispSptjmTanggal">Sambas, September 2026</p>
+                    <p class="font-bold">Kepala Dinas Pendidikan dan Kebudayaan</p>
+                    <p class="font-bold mb-16">Kabupaten Sambas</p>
+                    <p class="font-bold underline" id="dispSptjmSignNama">ARSYAD, S.Pd., M.M.</p>
+                    <p class="text-slate-700" id="dispSptjmSignPangkat">Pembina Utama Muda (IV/c)</p>
+                    <p class="text-slate-700" id="dispSptjmSignNip">NIP. 196812311995121011</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Kwitansi View -->
+    <div id="tab-kwitansi" class="tab-content p-6 hidden">
+        <div class="flex justify-end mb-4">
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 shadow-sm">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Cetak Kwitansi</span>
+            </button>
+        </div>
+        <div class="border-2 border-slate-900 p-6 max-w-3xl mx-auto bg-white rounded-md shadow-sm font-sans text-xs">
+            <div class="flex justify-between text-[11px] mb-2 font-mono">
+                <div>Nomor : .....................</div>
+                <div>NPWP : .....................</div>
+            </div>
+
+            <div class="text-center font-bold mb-6">
+                <h2 class="text-base uppercase tracking-wider underline font-serif">TANDA BUKTI PEMBAYARAN</h2>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-3">Telah menerima uang dari</div>
+                    <div class="col-span-9">: Kepala Dinas Pendidikan dan Kebudayaan Kabupaten Sambas</div>
+                </div>
+                <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-3">Uang Sebanyak</div>
+                    <div class="col-span-9 font-bold italic" id="kwitansiTerbilangTxt">: -</div>
+                </div>
+                <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-3">Untuk Keperluan</div>
+                    <div class="col-span-9 text-justify-custom" id="kwitansiKeperluanTxt">
+                        : Pembayaran Tambahan Penghasilan Pegawai berdasarkan Beban Kerja PNS Bulan Mei - Juni Tahun 2026 pada Dinas Pendidikan dan Kebudayaan Kabupaten Sambas
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end text-center mb-4">
+                <div class="w-64">
+                    <p id="kwitansiTglTxt">Sambas, September 2026</p>
+                    <p>Yang Menerima,</p>
+                    <p class="font-bold">Kepala Dinas Pendidikan dan Kebudayaan</p>
+                    <p class="font-bold mb-12">Kabupaten Sambas</p>
+                    <p class="font-bold underline" id="kwitansiKadisNamaTxt">ARSYAD, S.Pd., M.M.</p>
+                    <p id="kwitansiKadisNipTxt">NIP. 19681231 199512 1 011</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 border-2 border-slate-900 mb-6 items-center">
+                <div class="col-span-3 p-2 font-bold italic border-r-2 border-slate-900">Terbilang</div>
+                <div class="col-span-9 p-2 font-bold text-sm" id="kwitansiNominalBox">Rp 1,714,773,820.00</div>
+            </div>
+            <p class="italic text-[10px] mb-4">* Harap jangan ada coretan</p>
+
+            <div class="grid grid-cols-3 border-2 border-slate-900 text-center text-[11px]">
+                <div class="border-r-2 border-slate-900 p-2 flex flex-col justify-between h-36">
+                    <div>
+                        <p>Mengetahui dan Setuju Bayar</p>
+                        <p class="font-bold">Pengguna Anggaran</p>
+                    </div>
+                    <div>
+                        <p class="font-bold underline" id="kwitansiKpaNama">ARSYAD, S.Pd., M.M.</p>
+                        <p id="kwitansiKpaNip">NIP. 19681231 199512 1 011</p>
+                    </div>
+                </div>
+                <div class="border-r-2 border-slate-900 p-2 text-left space-y-2">
+                    <p class="font-semibold text-center">Dibukukan</p>
+                    <div class="grid grid-cols-12 gap-1 text-[10px]">
+                        <div class="col-span-5">Tanggal</div>
+                        <div class="col-span-7">:</div>
+                    </div>
+                    <div class="grid grid-cols-12 gap-1 text-[10px]">
+                        <div class="col-span-5">No. Buku Kas</div>
+                        <div class="col-span-7">:</div>
+                    </div>
+                    <div class="grid grid-cols-12 gap-1 text-[10px]">
+                        <div class="col-span-5">Kode Rekening</div>
+                        <div class="col-span-7">: 51010200100001</div>
+                    </div>
+                </div>
+                <div class="p-2 flex flex-col justify-between h-36">
+                    <div>
+                        <p>Lunas Dibayar</p>
+                        <p class="font-bold">Bendahara Pengeluaran</p>
+                    </div>
+                    <div>
+                        <p class="font-bold underline" id="kwitansiBendaharaNama">NUR INDAH SARI, S.Tr.Ak</p>
+                        <p id="kwitansiBendaharaNip">NIP. 19970709 202012 2 021</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Transfer Bank View -->
+    <div id="tab-bank" class="tab-content p-6 hidden">
+        <div class="max-w-4xl mx-auto bg-white p-6 border border-slate-200 rounded-md font-sans">
+            <div class="flex items-center border-b-4 border-double border-slate-900 pb-3 mb-4">
+                <div class="w-16 pr-2 flex-shrink-0">
+                    <img id="imgKopBank" src="" alt="Logo Pemda" class="w-14 h-auto mx-auto">
+                </div>
+                <div class="text-center flex-1 space-y-0.5">
+                    <h3 class="text-xs uppercase tracking-wider font-normal" id="dispKop1Bank">PEMERINTAH KABUPATEN SAMBAS</h3>
+                    <h2 class="text-sm font-bold uppercase tracking-wide" id="dispKop2Bank">DINAS PENDIDIKAN DAN KEBUDAYAAN</h2>
+                    <p class="text-[10px]" id="dispKop3Bank">Jalan Pembangunan Sambas, Kode Pos 79460</p>
+                    <p class="text-[9px]" id="dispKop4Bank">e-mail: dikbud.sbs@gmail.com, diknas_sambas@yahoo.co.id</p>
+                    <p class="text-[9px]" id="dispKop5Bank">Laman: https://disdikbud.sambas.go.id</p>
+                </div>
+            </div>
+
+            <div class="space-y-1 text-xs mb-4 font-mono">
+                <div class="grid grid-cols-12"><div class="col-span-3">KODE</div><div class="col-span-9">: S12</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">KANTOR</div><div class="col-span-9">: Dinas Pendidikan dan Kebudayaan Kabupaten Sambas</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">NOMOR REKENING</div><div class="col-span-9">: 2501003312</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">NO. HP BENDAHARA</div><div class="col-span-9">: 0812 5039 5671</div></div>
+                <div class="grid grid-cols-12"><div class="col-span-3">PERIHAL</div><div class="col-span-9" id="bankPerihalTxt">: Pembayaran Tambahan Penghasilan Berdasarkan Beban Kerja Bulan Mei - Juni Tahun 2026</div></div>
+            </div>
+
+            <p class="text-xs leading-relaxed mb-4 text-justify-custom" id="bankKuasaTxt">
+                Yang bertanda tangan di bawah ini memberikan kuasa kepada PT Bank Pembangunan Daerah Kalimantan Barat Cabang Sambas untuk memindahbukukan rekening Dinas Pendidikan dan Kebudayaan Kab. Sambas untuk pembayaran Tambahan Penghasilan Pegawai berdasarkan Beban Kerja PNS Bulan Mei - Juni Tahun 2026 dengan rincian sebagai berikut :
+            </p>
+
+            <div class="overflow-x-auto max-h-[400px]">
+                <table class="w-full text-left text-xs border-collapse border border-slate-800">
+                    <thead class="bg-slate-100 text-slate-800 font-bold border-b-2 border-slate-800 text-center">
+                        <tr>
+                            <th class="p-2 border border-slate-800 w-10">NO</th>
+                            <th class="p-2 border border-slate-800">NAMA / NIP</th>
+                            <th class="p-2 border border-slate-800">UNIT KERJA</th>
+                            <th class="p-2 border border-slate-800">PANGKAT / GOLONGAN RUANG</th>
+                            <th class="p-2 border border-slate-800">JML TMBAHAN PNGHSILAN SETELAH PAJAK (JML BERSIH)</th>
+                            <th class="p-2 border border-slate-800">NOMOR REKENING</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBankBody" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<script>
+    /* Global Application State */
+    let globalTppData = [];
+    let filteredTppData = [];
+
+    let configState = {
+        kopLine1: "PEMERINTAH KABUPATEN SAMBAS",
+        kopLine2: "DINAS PENDIDIKAN DAN KEBUDAYAAN",
+        kopLine3: "Jalan Pembangunan Sambas, Kode Pos 79460",
+        kopLine4: "e-mail: dikbud.sbs@gmail.com, diknas_sambas@yahoo.co.id",
+        kopLine5: "Laman: https://disdikbud.sambas.go.id",
+        logoBase64: "",
+        namaKadis: "ARSYAD, S.Pd., M.M.",
+        nipKadis: "196812311995121011",
+        pangkatKadis: "Pembina Utama Muda (IV/c)",
+        namaBendahara: "NUR INDAH SARI, S.Tr.Ak",
+        nipBendahara: "19970709 202012 2 021",
+        periodeLabel: "Mei - Juni Tahun 2026",
+        kota: "Sambas",
+        tanggal: "September 2026"
+    };
+
+    const defaultSambasSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><path d="M50 5 L90 20 L90 70 L50 115 L10 70 L10 20 Z" fill="%2316a34a" stroke="%23f59e0b" stroke-width="4"/><circle cx="50" cy="55" r="28" fill="%23ffffff"/><path d="M35 70 L65 40 M35 40 L65 70" stroke="%23dc2626" stroke-width="5"/></svg>`;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+        configState.logoBase64 = defaultSambasSvg;
+        updateConfigState();
+    });
+
+    function toggleModal(modalId) {
+        document.getElementById(modalId).classList.toggle("hidden");
+    }
+
+    function handleLogoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            configState.logoBase64 = e.target.result;
+            updateConfigState();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateConfigState() {
+        configState.kopLine1 = document.getElementById("cfgKopLine1").value || configState.kopLine1;
+        configState.kopLine2 = document.getElementById("cfgKopLine2").value || configState.kopLine2;
+        configState.kopLine3 = document.getElementById("cfgKopLine3").value || configState.kopLine3;
+        configState.kopLine4 = document.getElementById("cfgKopLine4").value || configState.kopLine4;
+        configState.kopLine5 = document.getElementById("cfgKopLine5").value || configState.kopLine5;
+
+        configState.namaKadis = document.getElementById("cfgNamaKadis").value || configState.namaKadis;
+        configState.nipKadis = document.getElementById("cfgNipKadis").value || configState.nipKadis;
+        configState.pangkatKadis = document.getElementById("cfgPangkatKadis").value || configState.pangkatKadis;
+        configState.namaBendahara = document.getElementById("cfgNamaBendahara").value || configState.namaBendahara;
+        configState.nipBendahara = document.getElementById("cfgNipBendahara").value || configState.nipBendahara;
+        configState.periodeLabel = document.getElementById("cfgPeriodeLabel").value || configState.periodeLabel;
+        configState.kota = document.getElementById("cfgKotaDokumen").value || configState.kota;
+        configState.tanggal = document.getElementById("cfgTanggalDokumen").value || configState.tanggal;
+
+        // Render Kop Surat
+        ['Sptjm', 'Bank'].forEach(target => {
+            document.getElementById(`imgKop${target}`).src = configState.logoBase64;
+            document.getElementById(`dispKop1${target}`).innerText = configState.kopLine1;
+            document.getElementById(`dispKop2${target}`).innerText = configState.kopLine2;
+            document.getElementById(`dispKop3${target}`).innerText = configState.kopLine3;
+            document.getElementById(`dispKop4${target}`).innerText = configState.kopLine4;
+            document.getElementById(`dispKop5${target}`).innerText = configState.kopLine5;
+        });
+
+        // Update Dynamic SPTJM & Kwitansi Text
+        document.getElementById("dispSptjmNama").innerText = ": " + configState.namaKadis;
+        document.getElementById("dispSptjmNip").innerText = ": " + configState.nipKadis;
+        document.getElementById("dispSptjmPangkat").innerText = ": " + configState.pangkatKadis;
+        document.getElementById("dispSptjmPeriode").innerText = configState.periodeLabel;
+        document.getElementById("dispSptjmTanggal").innerText = configState.kota + ", " + configState.tanggal;
+        document.getElementById("dispSptjmSignNama").innerText = configState.namaKadis;
+        document.getElementById("dispSptjmSignPangkat").innerText = configState.pangkatKadis;
+        document.getElementById("dispSptjmSignNip").innerText = "NIP. " + configState.nipKadis;
+
+        document.getElementById("kwitansiKeperluanTxt").innerText = `: Pembayaran Tambahan Penghasilan Pegawai berdasarkan Beban Kerja PNS Bulan ${configState.periodeLabel} pada Dinas Pendidikan dan Kebudayaan Kabupaten Sambas`;
+        document.getElementById("kwitansiTglTxt").innerText = configState.kota + ", " + configState.tanggal;
+        document.getElementById("kwitansiKadisNamaTxt").innerText = configState.namaKadis;
+        document.getElementById("kwitansiKadisNipTxt").innerText = "NIP. " + configState.nipKadis;
+        document.getElementById("kwitansiKpaNama").innerText = configState.namaKadis;
+        document.getElementById("kwitansiKpaNip").innerText = "NIP. " + configState.nipKadis;
+        document.getElementById("kwitansiBendaharaNama").innerText = configState.namaBendahara;
+        document.getElementById("kwitansiBendaharaNip").innerText = "NIP. " + configState.nipBendahara;
+
+        document.getElementById("bankPerihalTxt").innerText = `: Pembayaran Tambahan Penghasilan Berdasarkan Beban Kerja Bulan ${configState.periodeLabel}`;
+        document.getElementById("bankKuasaTxt").innerText = `Yang bertanda tangan di bawah ini memberikan kuasa kepada PT Bank Pembangunan Daerah Kalimantan Barat Cabang Sambas untuk memindahbukukan rekening Dinas Pendidikan dan Kebudayaan Kab. Sambas untuk pembayaran Tambahan Penghasilan Pegawai berdasarkan Beban Kerja PNS Bulan ${configState.periodeLabel} dengan rincian sebagai berikut :`;
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('text-blue-600', 'bg-white', 'border-b-2', 'border-blue-600', 'shadow-sm', 'font-semibold');
+            btn.classList.add('text-slate-500', 'font-medium');
+        });
+
+        const activeContent = document.getElementById(tabId);
+        if (activeContent) activeContent.classList.remove('hidden');
+
+        const activeBtn = document.getElementById('tabBtn-' + tabId.replace('tab-', ''));
+        if (activeBtn) {
+            activeBtn.classList.add('text-blue-600', 'bg-white', 'border-b-2', 'border-blue-600', 'shadow-sm', 'font-semibold');
+            activeBtn.classList.remove('text-slate-500', 'font-medium');
+        }
+    }
+
+    function calculatePph21TER(tppKotor, golongan) {
+        let rate = 0;
+        if (golongan.startsWith("IV")) {
+            rate = 0.15;
+        } else if (golongan.startsWith("III")) {
+            rate = 0.05;
+        } else {
+            rate = 0.00;
+        }
+        return Math.round(tppKotor * rate);
+    }
+
+    function terbilangRupiah(angka) {
+        const bil = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+        let num = Math.floor(Math.abs(angka));
+        if (num === 0) return "Nol Rupiah";
+
+        function spell(n) {
+            if (n < 12) return bil[n];
+            if (n < 20) return spell(n - 10) + " Belas";
+            if (n < 100) return spell(Math.floor(n / 10)) + " Puluh " + spell(n % 10);
+            if (n < 200) return "Seratus " + spell(n - 100);
+            if (n < 1000) return spell(Math.floor(n / 100)) + " Ratus " + spell(n % 100);
+            if (n < 2000) return "Seribu " + spell(n - 1000);
+            if (n < 1000000) return spell(Math.floor(n / 1000)) + " Ribu " + spell(n % 1000);
+            if (n < 1000000000) return spell(Math.floor(n / 1000000)) + " Juta " + spell(n % 1000000);
+            if (n < 1000000000000) return spell(Math.floor(n / 1000000000)) + " Miliar " + spell(n % 1000000000);
+            return "";
+        }
+        return spell(num).trim().replace(/\s+/g, ' ') + " Rupiah";
+    }
+
+    function formatRp(val) {
+        return "Rp " + Math.round(val || 0).toLocaleString("id-ID");
+    }
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Auto-detect period label from uploaded filename
+        const fileName = file.name.toUpperCase();
+        if (fileName.includes("MEI") && fileName.includes("JUNI")) {
+            configState.periodeLabel = "Mei - Juni Tahun 2026";
+        } else if (fileName.includes("JULI")) {
+            configState.periodeLabel = "Juli Tahun 2026";
+        } else if (fileName.includes("AGUSTUS")) {
+            configState.periodeLabel = "Agustus Tahun 2026";
+        }
+
+        document.getElementById("cfgPeriodeLabel").value = configState.periodeLabel;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            // Check sheet names to detect multi-month info
+            if (workbook.SheetNames.includes("MEI-JUNI")) {
+                configState.periodeLabel = "Mei - Juni Tahun 2026";
+            }
+            document.getElementById("cfgPeriodeLabel").value = configState.periodeLabel;
+
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rawJson = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            processRawExcelData(rawJson);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function processRawExcelData(rows) {
+        let parsedData = [];
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || row.length < 3 || !row[1]) continue;
+
+            const nip = String(row[1] || '').trim();
+            const nama = String(row[2] || '').trim();
+            const golongan = String(row[4] || row[3] || 'III/a').trim();
+            const jabatan = String(row[5] || row[4] || 'Guru').trim();
+            const unit = String(row[6] || 'DINAS PENDIDIKAN DAN KEBUDAYAAN').trim();
+
+            const tppKotor = parseFloat(row[8]) || parseFloat(row[7]) || 200000;
+            const pph21 = parseFloat(row[10]) || calculatePph21TER(tppKotor, golongan);
+            const bpjs1 = parseFloat(row[11]) || Math.round(tppKotor * 0.01);
+            const bpjs4 = parseFloat(row[12]) || Math.round(tppKotor * 0.04);
+
+            const nettoExcel = parseFloat(row[13]) || (tppKotor - pph21 - bpjs1);
+            const nettoFormula = tppKotor - pph21 - bpjs1 - bpjs4;
+            const selisih = nettoExcel - nettoFormula;
+
+            parsedData.push({
+                no: parsedData.length + 1,
+                nip,
+                nama,
+                golongan,
+                jabatan,
+                unit,
+                noRekening: "250" + Math.floor(1000000 + Math.random() * 9000000),
+                tppKotor,
+                pph21,
+                bpjs1,
+                bpjs4,
+                nettoExcel,
+                nettoFormula,
+                selisih
+            });
+        }
+
+        globalTppData = parsedData;
+        filteredTppData = [...globalTppData];
+        updateConfigState();
+        renderAllTablesAndStats();
+    }
+
+    function loadDemoData() {
+        configState.periodeLabel = "Mei - Juni Tahun 2026";
+        document.getElementById("cfgPeriodeLabel").value = configState.periodeLabel;
+
+        const sampleUnits = ["DINAS PENDIDIKAN DAN KEBUDAYAAN", "SDN 18 SEBURUAN", "SDN 02 SENTEBANG", "SMPN 1 JAWAI SELATAN", "SDN 03 NIBUNG"];
+        const sampleJabatans = ["Kepala Seksi", "Guru Muda", "Guru Madya", "Kepala Sekolah Madya", "Guru Pertama"];
+        const sampleGols = ["IV/a", "IV/b", "III/c", "III/d", "III/b", "III/a"];
+
+        let demoList = [];
+        for (let i = 1; i <= 2225; i++) {
+            const gol = sampleGols[i % sampleGols.length];
+            const tppKotor = 400000;
+            const pph21 = calculatePph21TER(tppKotor, gol);
+            const bpjs1 = Math.round(tppKotor * 0.01);
+            const bpjs4 = Math.round(tppKotor * 0.04);
+
+            const nettoFormula = tppKotor - pph21 - bpjs1 - bpjs4;
+            const nettoExcel = tppKotor - pph21 - bpjs1;
+            const selisih = nettoExcel - nettoFormula;
+
+            demoList.push({
+                no: i,
+                nip: "198" + (1000000000000 + i),
+                nama: `Pegawai Disdikbud ${i}`,
+                golongan: gol,
+                jabatan: sampleJabatans[i % sampleJabatans.length],
+                unit: sampleUnits[i % sampleUnits.length],
+                noRekening: "2525" + (100000 + i),
+                tppKotor,
+                pph21,
+                bpjs1,
+                bpjs4,
+                nettoExcel,
+                nettoFormula,
+                selisih
+            });
+        }
+
+        globalTppData = demoList;
+        filteredTppData = [...globalTppData];
+        updateConfigState();
+        renderAllTablesAndStats();
+    }
+
+    function renderAllTablesAndStats() {
+        if (!globalTppData.length) return;
+
+        document.getElementById('btnExport').disabled = false;
+
+        const totalPegawai = globalTppData.length;
+        const totalKotor = globalTppData.reduce((a, b) => a + b.tppKotor, 0);
+        const totalPph = globalTppData.reduce((a, b) => a + b.pph21, 0);
+        const totalBpjs1 = globalTppData.reduce((a, b) => a + b.bpjs1, 0);
+        const totalBpjs4 = globalTppData.reduce((a, b) => a + b.bpjs4, 0);
+        const totalNetto = globalTppData.reduce((a, b) => a + b.nettoExcel, 0);
+
+        const selisihRecords = globalTppData.filter(d => Math.abs(d.selisih) > 0);
+        const totalSelisih = globalTppData.reduce((a, b) => a + b.selisih, 0);
+
+        document.getElementById("statPegawai").innerText = totalPegawai.toLocaleString("id-ID");
+        document.getElementById("statKotor").innerText = formatRp(totalKotor);
+        document.getElementById("statPph").innerText = formatRp(totalPph);
+        document.getElementById("statBpjs").innerText = formatRp(totalBpjs1 + totalBpjs4);
+        document.getElementById("statNetto").innerText = formatRp(totalNetto);
+        document.getElementById("statSelisih").innerText = selisihRecords.length + " Record";
+        document.getElementById("statSelisihAmount").innerText = "Total Selisih: " + formatRp(totalSelisih);
+
+        document.getElementById("kwitansiTerbilangTxt").innerText = ": " + terbilangRupiah(totalNetto);
+        document.getElementById("kwitansiNominalBox").innerText = formatRp(totalNetto);
+
+        renderAuditTable();
+        renderTabViews();
+        renderBankTable();
+    }
+
+    function filterData() {
+        const query = document.getElementById("searchInput").value.toLowerCase();
+        const selisihFilter = document.getElementById("filterSelisih").value;
+
+        filteredTppData = globalTppData.filter(item => {
+            const matchQuery = item.nip.toLowerCase().includes(query) ||
+                               item.nama.toLowerCase().includes(query) ||
+                               item.jabatan.toLowerCase().includes(query) ||
+                               item.unit.toLowerCase().includes(query);
+
+            let matchSelisih = true;
+            if (selisihFilter === "selisih") matchSelisih = Math.abs(item.selisih) > 0;
+            if (selisihFilter === "normal") matchSelisih = Math.abs(item.selisih) === 0;
+
+            return matchQuery && matchSelisih;
+        });
+
+        document.getElementById("recordCount").innerText = filteredTppData.length.toLocaleString("id-ID");
+        renderAuditTable();
+    }
+
+    function renderAuditTable() {
+        const tbody = document.getElementById("tableAuditBody");
+        if (!filteredTppData.length) {
+            tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-400">Tidak ada data sesuai filter.</td></tr>`;
+            return;
+        }
+
+        const displayList = filteredTppData.slice(0, 200);
+        tbody.innerHTML = displayList.map((item, idx) => `
+            <tr class="hover:bg-slate-50 transition">
+                <td class="p-2.5 text-center text-slate-500">${idx + 1}</td>
+                <td class="p-2.5">
+                    <div class="font-semibold text-slate-800">${item.nama}</div>
+                    <div class="text-[10px] text-slate-400">${item.nip}</div>
+                </td>
+                <td class="p-2.5">
+                    <div class="text-slate-700">${item.jabatan}</div>
+                    <span class="inline-block px-1.5 py-0.5 text-[9px] font-medium bg-slate-100 text-slate-600 rounded">${item.golongan}</span>
+                </td>
+                <td class="p-2.5 text-slate-600">${item.unit}</td>
+                <td class="p-2.5 text-right font-medium">${formatRp(item.tppKotor)}</td>
+                <td class="p-2.5 text-right text-rose-600">${formatRp(item.pph21)}</td>
+                <td class="p-2.5 text-right text-amber-600">${formatRp(item.bpjs1)}</td>
+                <td class="p-2.5 text-right text-amber-600">${formatRp(item.bpjs4)}</td>
+                <td class="p-2.5 text-right font-semibold text-slate-800">${formatRp(item.nettoExcel)}</td>
+                <td class="p-2.5 text-right text-slate-600">${formatRp(item.nettoFormula)}</td>
+                <td class="p-2.5 text-center">
+                    ${Math.abs(item.selisih) > 0 ? 
+                        `<span class="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full border border-amber-300">+${formatRp(item.selisih)}</span>` : 
+                        `<span class="px-2 py-0.5 text-[10px] font-medium bg-emerald-100 text-emerald-700 rounded-full">Sesuai</span>`
+                    }
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderTabViews() {
+        const list = globalTppData.slice(0, 100);
+
+        // Render Pasal 17
+        document.getElementById("tablePasal17Body").innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border text-center">${idx + 1}</td>
+                <td class="p-2 border font-medium">${item.nama}<br><span class="text-[10px] text-slate-500">${item.nip}</span></td>
+                <td class="p-2 border text-right">${formatRp(item.tppKotor * 12)}</td>
+                <td class="p-2 border text-center">${item.golongan.startsWith("IV") ? "K/2" : "TK/0"}</td>
+                <td class="p-2 border text-right font-semibold text-rose-600">${formatRp(item.pph21)}</td>
+            </tr>
+        `).join('');
+
+        // Render Pensiun
+        document.getElementById("tablePensiunBody").innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border text-center">${idx + 1}</td>
+                <td class="p-2 border font-medium">${item.nama}<br><span class="text-[10px] text-slate-500">${item.nip}</span></td>
+                <td class="p-2 border">${item.golongan} - ${item.jabatan}</td>
+                <td class="p-2 border text-right">${formatRp(item.tppKotor)}</td>
+                <td class="p-2 border text-right text-rose-600">${formatRp(item.pph21)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs1)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs4)}</td>
+                <td class="p-2 border text-right font-bold text-slate-800">${formatRp(item.nettoExcel)}</td>
+            </tr>
+        `).join('');
+
+        // Render Tanpa Pensiun
+        document.getElementById("tableTanpaPensiunBody").innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border text-center">${idx + 1}</td>
+                <td class="p-2 border font-medium">${item.nama}<br><span class="text-[10px] text-slate-500">${item.nip}</span></td>
+                <td class="p-2 border">${item.golongan} - ${item.jabatan}</td>
+                <td class="p-2 border text-right">${formatRp(item.tppKotor)}</td>
+                <td class="p-2 border text-right text-rose-600">${formatRp(item.pph21)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs1)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs4)}</td>
+                <td class="p-2 border text-right font-semibold text-slate-700">${formatRp(item.nettoFormula)}</td>
+            </tr>
+        `).join('');
+
+        // Render 1 Bulan
+        document.getElementById("table1BulanBody").innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border text-center">${idx + 1}</td>
+                <td class="p-2 border font-medium">${item.nama}<br><span class="text-[10px] text-slate-500">${item.nip}</span></td>
+                <td class="p-2 border text-right">${formatRp(item.tppKotor / 2)}</td>
+                <td class="p-2 border text-right text-rose-600">${formatRp(item.pph21 / 2)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs1 / 2)}</td>
+                <td class="p-2 border text-right font-bold text-slate-800">${formatRp((item.tppKotor / 2) - (item.pph21 / 2) - (item.bpjs1 / 2))}</td>
+            </tr>
+        `).join('');
+
+        // Render 2 Bulan
+        document.getElementById("table2BulanBody").innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border text-center">${idx + 1}</td>
+                <td class="p-2 border font-medium">${item.nama}<br><span class="text-[10px] text-slate-500">${item.nip}</span></td>
+                <td class="p-2 border text-right font-medium">${formatRp(item.tppKotor)}</td>
+                <td class="p-2 border text-right text-rose-600">${formatRp(item.pph21)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs1)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs4)}</td>
+                <td class="p-2 border text-right font-bold text-emerald-700 bg-emerald-50">${formatRp(item.nettoExcel)}</td>
+            </tr>
+        `).join('');
+
+        // Render Tanpa BPJS 4%
+        document.getElementById("tableTanpaBpjsBody").innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border text-center">${idx + 1}</td>
+                <td class="p-2 border font-medium">${item.nama}<br><span class="text-[10px] text-slate-500">${item.nip}</span></td>
+                <td class="p-2 border text-right">${formatRp(item.tppKotor)}</td>
+                <td class="p-2 border text-right text-rose-600">${formatRp(item.pph21)}</td>
+                <td class="p-2 border text-right text-amber-600">${formatRp(item.bpjs1)}</td>
+                <td class="p-2 border text-right font-bold text-slate-800">${formatRp(item.nettoExcel)}</td>
+            </tr>
+        `).join('');
+
+        // Render Rekap TPP
+        document.getElementById("tableRekapBody").innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border text-center">${idx + 1}</td>
+                <td class="p-2 border font-mono text-[10px]">${item.nip}</td>
+                <td class="p-2 border font-medium">${item.nama}</td>
+                <td class="p-2 border text-right font-bold">${formatRp(item.nettoExcel)}</td>
+                <td class="p-2 border">${item.unit}</td>
+                <td class="p-2 border">SAMBAS DISDIK</td>
+            </tr>
+        `).join('');
+    }
+
+    function renderBankTable() {
+        const tbody = document.getElementById("tableBankBody");
+        const list = globalTppData.slice(0, 100);
+        tbody.innerHTML = list.map((item, idx) => `
+            <tr>
+                <td class="p-2 border border-slate-800 text-center font-bold">${idx + 1}</td>
+                <td class="p-2 border border-slate-800 font-medium">${item.nama}/<br><span class="font-mono text-[10px]">${item.nip}</span></td>
+                <td class="p-2 border border-slate-800">${item.unit}</td>
+                <td class="p-2 border border-slate-800 text-center">${item.golongan}</td>
+                <td class="p-2 border border-slate-800 text-right font-bold">${formatRp(item.nettoExcel)}</td>
+                <td class="p-2 border border-slate-800 font-mono text-center">${item.noRekening}</td>
+            </tr>
+        `).join('');
+    }
+
+    /* Export Excel Generator untuk Seluruh Sheet Wajib */
+    function exportMultiSheetExcel() {
+        if (!globalTppData.length) return;
+
+        const wb = XLSX.utils.book_new();
+
+        // 1. TER
+        const dataTer = [
+            ["Jenis TER", "Penghasilan Bruto", "", "", "TER", "", "Deskripsi Jenis TER"],
+            ["TER A", 0, "s.d", 5400000, 0.0000, "", "TK/0"],
+            ["TER A", 5400001, "s.d", 5650000, 0.0025, "", "TK/1"],
+            ["TER A", 5650001, "s.d", 5950000, 0.0050, "", "K/0"],
+            ["TER B", 6300001, "s.d", 6750000, 0.0100, "", "TK/3"]
+        ];
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataTer), "TER");
+
+        // 2. PASAL 17
+        const dataPasal17 = [
+            ["PPH TERUTANG ATAS TAMBAHAN PENGHASILAN BAGI PEGAWAI NEGERI SIPIL PENSIUN"],
+            ["DINAS PENDIDIKAN DAN KEBUDAYAAN KABUPATEN SAMBAS"],
+            ["TPP " + configState.periodeLabel.toUpperCase()],
+            [],
+            ["NO", "NAMA", "NIP", "GAJI KOTOR SETAHUN", "PENGHASILAN BRUTO", "PTKP", "PPH TERUTANG"]
+        ];
+        globalTppData.forEach((d, i) => {
+            dataPasal17.push([i + 1, d.nama, d.nip, d.tppKotor * 12, d.tppKotor, d.golongan.startsWith("IV") ? "K/2" : "TK/0", d.pph21]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataPasal17), "PASAL 17");
+
+        // 3. PERHITUNGAN DENGAN PENSIUN
+        const dataPensiun = [
+            ["PPH TERUTANG ATAS TAMBAHAN PENGHASILAN BAGI PEGAWAI NEGERI SIPIL (DENGAN PENSIUN)"],
+            ["DINAS PENDIDIKAN DAN KEBUDAYAAN KABUPATEN SAMBAS"],
+            ["BULAN " + configState.periodeLabel.toUpperCase()],
+            [],
+            ["NO", "NAMA/NIP", "NAMA", "NIP", "GOL/RUANG", "NO. REK", "JABATAN", "TPP 100%", "PPH 21", "BPJS 1%", "BPJS 4%", "TPP DITERIMA", "UNIT KERJA"]
+        ];
+        globalTppData.forEach((d, i) => {
+            dataPensiun.push([i + 1, `${d.nama}/${d.nip}`, d.nama, d.nip, d.golongan, d.noRekening, d.jabatan, d.tppKotor, d.pph21, d.bpjs1, d.bpjs4, d.nettoExcel, d.unit]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataPensiun), "PERHITUNGAN DENGAN PENSIUN");
+
+        // 4. PERHITUNGAN TANPA PENSIUN
+        const dataTanpaPensiun = [
+            ["PPH TERUTANG ATAS TAMBAHAN PENGHASILAN BAGI PEGAWAI NEGERI SIPIL (TANPA PENSIUN)"],
+            ["DINAS PENDIDIKAN DAN KEBUDAYAAN KABUPATEN SAMBAS"],
+            ["BULAN " + configState.periodeLabel.toUpperCase()],
+            [],
+            ["NO", "NAMA/NIP", "NAMA", "NIP", "GOL/RUANG", "NO. REK", "JABATAN", "TPP 100%", "PPH 21", "BPJS 1%", "BPJS 4%", "TPP DITERIMA", "UNIT KERJA"]
+        ];
+        globalTppData.forEach((d, i) => {
+            dataTanpaPensiun.push([i + 1, `${d.nama}/${d.nip}`, d.nama, d.nip, d.golongan, d.noRekening, d.jabatan, d.tppKotor, d.pph21, d.bpjs1, d.bpjs4, d.nettoFormula, d.unit]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataTanpaPensiun), "PERHITUNGAN TANPA PENSIUN");
+
+        // 5. 1 BULAN
+        const data1Bulan = [
+            ["DAFTAR PERHITUNGAN PENERIMAAN TPP (1 BULAN)"],
+            ["NAMA PD : DINAS PENDIDIKAN DAN KEBUDAYAAN KABUPATEN SAMBAS"],
+            [],
+            ["NO", "NIP", "NAMA PEGAWAI", "JABATAN", "GOL", "TPP 100%", "PPH 21", "BPJS 1%", "TPP DITERIMA"]
+        ];
+        globalTppData.forEach((d, i) => {
+            data1Bulan.push([i + 1, d.nip, d.nama, d.jabatan, d.golongan, d.tppKotor / 2, d.pph21 / 2, d.bpjs1 / 2, (d.tppKotor / 2) - (d.pph21 / 2) - (d.bpjs1 / 2)]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data1Bulan), "1 BULAN");
+
+        // 6. 2 BULAN
+        const data2Bulan = [
+            ["DAFTAR PERHITUNGAN PENERIMAAN TPP (2 BULAN)"],
+            ["NAMA PD : DINAS PENDIDIKAN DAN KEBUDAYAAN KABUPATEN SAMBAS"],
+            ["BULAN : " + configState.periodeLabel.toUpperCase()],
+            [],
+            ["NO", "NIP", "NAMA PEGAWAI", "JABATAN", "GOL", "TPP 100%", "PPH 21", "BPJS 1%", "BPJS 4%", "TPP DITERIMA"]
+        ];
+        globalTppData.forEach((d, i) => {
+            data2Bulan.push([i + 1, d.nip, d.nama, d.jabatan, d.golongan, d.tppKotor, d.pph21, d.bpjs1, d.bpjs4, d.nettoExcel]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data2Bulan), "2 BULAN");
+
+        // 7. TANPA BPJS 4%
+        const dataTanpaBpjs = [
+            ["DAFTAR PERHITUNGAN PENERIMAAN TPP TANPA BPJS 4%"],
+            ["NAMA PD : DINAS PENDIDIKAN DAN KEBUDAYAAN KABUPATEN SAMBAS"],
+            [],
+            ["NO", "NIP", "NAMA PEGAWAI", "JABATAN", "GOL", "TPP KOTOR", "PPH 21", "BPJS 1%", "TPP DITERIMA"]
+        ];
+        globalTppData.forEach((d, i) => {
+            dataTanpaBpjs.push([i + 1, d.nip, d.nama, d.jabatan, d.golongan, d.tppKotor, d.pph21, d.bpjs1, d.nettoExcel]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataTanpaBpjs), "TANPA BPJS 4%");
+
+        // 8. REKAP TPP
+        const dataRekap = [
+            ["nip", "nama", "nilai_tp", "nmsatker", "nmskpd"]
+        ];
+        globalTppData.forEach(d => {
+            dataRekap.push([d.nip, d.nama, d.nettoExcel, "DINAS PENDIDIKAN DAN KEBUDAYAAN", "SAMBAS DISDIK"]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataRekap), "REKAP TPP");
+
+        // 9. TRANSFER TPP (BANK)
+        const dataBank = [
+            ["PEMERINTAH KABUPATEN SAMBAS"],
+            ["DINAS PENDIDIKAN DAN KEBUDAYAAN"],
+            ["Jalan Pembangunan Sambas, Kode Pos 79460"],
+            [],
+            ["KODE", "", ": S12"],
+            ["KANTOR", "", ": Dinas Pendidikan dan Kebudayaan Kabupaten Sambas"],
+            ["NOMOR REKENING", "", ": 2501003312"],
+            ["PERIHAL", "", `: Pembayaran Tambahan Penghasilan Berdasarkan Beban Kerja Bulan ${configState.periodeLabel}`],
+            [],
+            ["NO", "NAMA / NIP", "UNIT KERJA", "PANGKAT / GOLONGAN RUANG", "JML TMBAHAN PNGHSILAN SETELAH PAJAK (JML BERSIH)", "NOMOR REKENING"]
+        ];
+        globalTppData.forEach((d, i) => {
+            dataBank.push([i + 1, `${d.nama}/${d.nip}`, d.unit, d.golongan, d.nettoExcel, d.noRekening]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataBank), "TRANSFER TPP (BANK)");
+
+        // 10. KWITANSI
+        const totalNettoAll = globalTppData.reduce((a, b) => a + b.nettoExcel, 0);
+        const dataKwitansi = [
+            ["TANDA BUKTI PEMBAYARAN"],
+            [],
+            ["Telah menerima uang dari", ":", "Kepala Dinas Pendidikan dan Kebudayaan Kabupaten Sambas"],
+            ["Uang Sebanyak", ":", terbilangRupiah(totalNettoAll)],
+            ["Untuk Keperluan", ":", `Pembayaran Tambahan Penghasilan Pegawai berdasarkan Beban Kerja PNS Bulan ${configState.periodeLabel} pada Dinas Pendidikan dan Kebudayaan Kabupaten Sambas`],
+            [],
+            ["", "", "", `${configState.kota}, ${configState.tanggal}`],
+            ["", "", "", "Yang Menerima,"],
+            ["", "", "", "Kepala Dinas Pendidikan dan Kebudayaan Kabupaten Sambas"],
+            [],
+            [],
+            ["Terbilang", totalNettoAll, "", configState.namaKadis],
+            ["", "", "", `NIP. ${configState.nipKadis}`]
+        ];
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataKwitansi), "KWITANSI");
+
+        // 11. SPTJM
+        const dataSPTJM = [
+            ["SURAT PERNYATAAN TANGGUNG JAWAB MUTLAK"],
+            [],
+            ["Yang bertanda tangan dibawah ini :"],
+            ["Nama", ":", configState.namaKadis],
+            ["NIP", ":", configState.nipKadis],
+            ["Pangkat / Golongan", ":", configState.pangkatKadis],
+            ["Jabatan", ":", "Kepala Dinas Pendidikan dan Kebudayaan Kabupaten Sambas"],
+            ["Unit Kerja", ":", "Dinas Pendidikan dan Kebudayaan Kabupaten Sambas"],
+            [],
+            [`Menyatakan dengan sesungguhnya bahwa saya bertanggungjawab penuh atas keabsahan dokumen yang saya buat untuk kelengkapan pembayaran Tambahan Penghasilan Pegawai berdasarkan Beban Kerja PNS Bulan ${configState.periodeLabel} pada Dinas Pendidikan dan Kebudayaan Kabupaten Sambas.`],
+            [],
+            ["", "", `${configState.kota}, ${configState.tanggal}`],
+            ["", "", "Kepala Dinas Pendidikan dan Kebudayaan Kabupaten Sambas"],
+            [],
+            [],
+            ["", "", configState.namaKadis],
+            ["", "", configState.pangkatKadis],
+            ["", "", `NIP. ${configState.nipKadis}`]
+        ];
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataSPTJM), "SPTJM");
+
+        XLSX.writeFile(wb, `7. TPP ${configState.periodeLabel.toUpperCase().replace(/\s+/g, '_')}.xlsx`);
+    }
+</script>
+</body>
+</html>
