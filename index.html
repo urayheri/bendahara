@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Akumulasi TPP Pegawai Multi-Sheet</title>
+    <title>Aplikasi Akumulasi TPP Pegawai Multi-Sheet & Multi-File</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (xlsx) for reading/writing Excel files -->
@@ -33,9 +33,9 @@
                         <h1 class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-300">
                             Aplikasi Rekapitulasi TPP
                         </h1>
-                        <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">v3.1 Enterprise Audit</span>
+                        <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">v3.2 Multi-File Audit</span>
                     </div>
-                    <p class="text-xs text-indigo-300/80 font-medium">Sistem Akumulasi Multi-Sheet & Deteksi Pintar Rekapitulasi Keuangan</p>
+                    <p class="text-xs text-indigo-300/80 font-medium">Sistem Akumulasi Multi-File, Multi-Sheet & Deteksi Pintar Rekapitulasi Keuangan</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -58,8 +58,8 @@
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 <label class="cursor-pointer bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="file-up" class="w-5 h-5"></i>
-                    <span>1. Unggah Excel (.xlsx / .xls)</span>
-                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
+                    <span>1. Unggah Excel (Dapat Pilih Multi-File)</span>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" multiple class="hidden">
                 </label>
                 <button id="btnExport" disabled class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:from-emerald-600 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="download" class="w-5 h-5"></i>
@@ -130,7 +130,7 @@
                 <select id="filterSelect" onchange="applyFilters()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
                     <option value="ALL">Semua Data Pegawai</option>
                     <option value="SELISIH">Hanya Pegawai Ada Selisih</option>
-                    <option value="WARNING">Hanya Data Peringatan (Double / Rp 0)</option>
+                    <option value="WARNING">Hanya Data Peringatan (Double / Rp 0 / Selisih)</option>
                     <option value="DOUBLE">Hanya NIP Ganda</option>
                     <option value="ZERO">Hanya TPP Rp 0</option>
                 </select>
@@ -160,7 +160,7 @@
                             <th class="py-3.5 px-4">NIP</th>
                             <th class="py-3.5 px-4">Nama Pegawai</th>
                             <th class="py-3.5 px-4 text-center">Masa Kerja</th>
-                            <th class="py-3.5 px-4 text-center">Bulan</th>
+                            <th class="py-3.5 px-4 text-center">Frekuensi/Bulan</th>
                             <th class="py-3.5 px-4 text-right">Total TPP Kotor</th>
                             <th class="py-3.5 px-4 text-right">PPh 21</th>
                             <th class="py-3.5 px-4 text-right">TPP Diterima</th>
@@ -175,7 +175,7 @@
                                     <div class="p-4 bg-slate-100 rounded-full border border-slate-200">
                                         <i data-lucide="folder-open" class="w-8 h-8 stroke-1 text-slate-400"></i>
                                     </div>
-                                    <p class="font-medium">Silakan unggah file Excel untuk memulai proses akumulasi data TPP.</p>
+                                    <p class="font-medium">Silakan unggah satu atau beberapa file Excel untuk memulai akumulasi data TPP.</p>
                                 </div>
                             </td>
                         </tr>
@@ -187,21 +187,24 @@
 
     <!-- Modal 1: Pemilih Sheet -->
     <div id="modalSheetSelect" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md flex items-center justify-center hidden z-50 p-4 transition-all">
-        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 transform transition-all">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 transform transition-all flex flex-col max-h-[85vh]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 shrink-0">
                 <div class="flex items-center space-x-3">
                     <div class="p-2 bg-indigo-100 text-indigo-700 rounded-xl">
                         <i data-lucide="layers" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="font-bold text-slate-800 text-base">Pilih Sheet Excel</h3>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base">Pilih Sheet Yang Akan Diakumulasikan</h3>
+                        <p class="text-xs text-slate-500">Mendukung penggabungan antar-sheet & multi-file</p>
+                    </div>
                 </div>
                 <button onclick="closeModal('modalSheetSelect')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-200/50">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="p-6">
-                <p class="text-xs font-medium text-slate-500 mb-3">Pilih / centang sheet yang akan diakumulasikan:</p>
-                <div id="sheetListContainer" class="max-h-60 overflow-y-auto space-y-2 border border-slate-200 rounded-2xl p-3 bg-slate-50/50">
+            <div class="p-6 overflow-y-auto flex-1">
+                <p class="text-xs font-medium text-slate-500 mb-3">Centang sheet yang ingin diproses:</p>
+                <div id="sheetListContainer" class="space-y-2 border border-slate-200 rounded-2xl p-3 bg-slate-50/50 max-h-64 overflow-y-auto">
                     <!-- Checkbox items injected here -->
                 </div>
                 <div class="flex justify-between items-center mt-4 px-1">
@@ -212,7 +215,7 @@
                     </div>
                 </div>
             </div>
-            <div class="p-5 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+            <div class="p-5 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3 shrink-0">
                 <button onclick="closeModal('modalSheetSelect')" class="px-5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200/60 rounded-xl transition-all">Batal</button>
                 <button id="btnConfirmSheets" class="px-6 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/25 transition-all flex items-center space-x-2">
                     <i data-lucide="play" class="w-4 h-4"></i>
@@ -231,7 +234,7 @@
                 </div>
                 <div>
                     <h3 class="font-extrabold text-base">Peringatan NIP Ganda!</h3>
-                    <p class="text-xs text-amber-100 font-medium">Ditemukan data pegawai ganda pada bulan/sheet yang sama</p>
+                    <p class="text-xs text-amber-100 font-medium">Ditemukan data pegawai ganda pada sheet/file yang sama</p>
                 </div>
             </div>
             <div class="p-6">
@@ -398,7 +401,7 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200/80 py-4 text-center text-xs text-slate-500 font-medium">
-        &copy; 2026 Aplikasi Rekapitulasi TPP Pegawai • Dibuat dengan Cinta Untuk Istri Tercinta
+        &copy; 2026 Aplikasi Rekapitulasi TPP Pegawai • Dibuat dengan cinta
     </footer>
 
     <!-- JavaScript Logic -->
@@ -421,21 +424,37 @@
         document.getElementById('btnExport').addEventListener('click', exportToExcel);
 
         function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
 
-            document.getElementById('fileInfoText').innerText = file.name;
-            const reader = new FileReader();
+            document.getElementById('fileInfoText').innerText = files.length === 1 ? files[0].name : `${files.length} File Excel Dipilih`;
 
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                workbookGlobal = XLSX.read(data, { type: 'array' });
-                
-                renderSheetCheckboxes(workbookGlobal.SheetNames);
-                openModal('modalSheetSelect');
-            };
+            workbookGlobal = XLSX.utils.book_new(); // Buat workbook penampung gabungan
+            let combinedSheetNames = [];
+            let filesRead = 0;
 
-            reader.readAsArrayBuffer(file);
+            Array.from(files).forEach((file, fIdx) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const wb = XLSX.read(data, { type: 'array' });
+
+                    // Salin setiap sheet dari file ke workbookGlobal
+                    wb.SheetNames.forEach(sName => {
+                        let uniqueSheetName = files.length > 1 ? `[File ${fIdx + 1}] ${sName}` : sName;
+                        workbookGlobal.SheetNames.push(uniqueSheetName);
+                        workbookGlobal.Sheets[uniqueSheetName] = wb.Sheets[sName];
+                        combinedSheetNames.push(uniqueSheetName);
+                    });
+
+                    filesRead++;
+                    if (filesRead === files.length) {
+                        renderSheetCheckboxes(combinedSheetNames);
+                        openModal('modalSheetSelect');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
         }
 
         function renderSheetCheckboxes(sheetNames) {
@@ -446,7 +465,8 @@
                 const item = document.createElement('label');
                 item.className = 'flex items-center space-x-3 p-2.5 bg-white rounded-xl border border-slate-200/80 hover:bg-indigo-50/50 cursor-pointer transition-all text-xs font-semibold text-slate-700';
                 
-                const isDefaultChecked = sName.includes('9 | 2026') || (idx === sheetNames.length - 1 && !sheetNames.some(s => s.includes('9 | 2026')));
+                // Centang bawaan jika mengandung pola tertentu atau semua dikulik jika multi-file
+                const isDefaultChecked = sName.includes('9 | 2026') || (idx === sheetNames.length - 1 && !sheetNames.some(s => s.includes('9 | 2026'))) || sheetNames.length <= 5;
                 
                 item.innerHTML = `
                     <input type="checkbox" data-sheetname="${encodeURIComponent(sName)}" ${isDefaultChecked ? 'checked' : ''} class="sheet-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
@@ -668,7 +688,7 @@
                 const totalBpjs4 = recs.reduce((sum, r) => sum + r.bpjs4, 0);
                 const totalTppTerima = recs.reduce((sum, r) => sum + r.tppTerima, 0);
 
-                // Formula Perhitungan Netto
+                // Formula Perhitungan Netto Standar
                 const calculatedNetto = totalTpp100 - totalPagu - totalPph21 - (totalBpjs1 + totalBpjs4);
                 const selisihIndividual = totalTppTerima - calculatedNetto;
 
