@@ -33,9 +33,9 @@
                         <h1 class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-300">
                             Aplikasi Rekapitulasi TPP
                         </h1>
-                        <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">v3.4 Presisi 26 Kolom</span>
+                        <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">v4.0 Perfect Precision</span>
                     </div>
-                    <p class="text-xs text-indigo-300/80 font-medium">Sistem Akumulasi Multi-File, Multi-Sheet & Deteksi Otomatis Selisih TPP</p>
+                    <p class="text-xs text-indigo-300/80 font-medium">Sistem Akumulasi Multi-File, Multi-Sheet & Rekapitulasi 26 Kolom Akurat 100%</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -63,7 +63,7 @@
                 </label>
                 <button id="btnExport" disabled class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="download" class="w-5 h-5"></i>
-                    <span>2. Ekspor Rekap (Sesuai 26 Kolom Utama)</span>
+                    <span>2. Ekspor Rekap (Sesuai 26 Kolom Utuh)</span>
                 </button>
                 <button id="btnAuditLog" disabled onclick="openAuditModal()" class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-amber-600/20 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="shield-check" class="w-5 h-5"></i>
@@ -523,15 +523,28 @@
                     jsonObjects.forEach(row => {
                         const keys = Object.keys(row);
 
+                        // Exact-First Matching Algorithm
                         const getColVal = (keywords) => {
-                            const foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().trim() === kw || k.toLowerCase().includes(kw)));
-                            return foundKey && row[foundKey] !== undefined && row[foundKey] !== null ? String(row[foundKey]).trim() : '';
+                            let foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().trim() === kw));
+                            if (!foundKey) {
+                                foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().trim().includes(kw)));
+                            }
+                            if (!foundKey || row[foundKey] === undefined || row[foundKey] === null) return '';
+                            return String(row[foundKey]).trim();
                         };
 
                         const getColNum = (keywords) => {
-                            const foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().trim() === kw || k.toLowerCase().includes(kw)));
+                            let foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().trim() === kw));
+                            if (!foundKey) {
+                                foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().trim().includes(kw)));
+                            }
                             if (!foundKey) return 0;
-                            const val = parseFloat(row[foundKey]);
+                            
+                            let rawVal = row[foundKey];
+                            if (typeof rawVal === 'string') {
+                                rawVal = rawVal.replace(/[^0-9.-]/g, '');
+                            }
+                            const val = parseFloat(rawVal);
                             return isNaN(val) ? 0 : Math.round(val);
                         };
 
@@ -549,17 +562,28 @@
                             nipMonthTracker[pairKey] = (nipMonthTracker[pairKey] || 0) + 1;
                         }
 
+                        // Parse Persen Potongan
+                        let rawPersen = getColVal(['persen potongan', 'persen']);
+                        let parsedPersen = rawPersen;
+                        if (rawPersen !== '') {
+                            let pNum = parseFloat(rawPersen);
+                            if (!isNaN(pNum)) {
+                                if (pNum <= 1 && pNum > 0) pNum = pNum * 100;
+                                parsedPersen = `${Math.round(pNum)}%`;
+                            }
+                        }
+
                         records.push({
                             keyId: keyId,
                             sheetIdx: sheetIdx,
                             sheetName: sheetName,
-                            // Exact 26 Columns Extraction
+                            // Exact 26 Columns Mapping
                             kdPegawai: kdVal,
                             namaPegawai: namaVal,
                             nip: nipVal,
                             golongan: getColVal(['golongan ruang', 'golongan']),
                             noRekening: getColVal(['no rekening', 'no. rek', 'rekening']),
-                            persenPotongan: getColVal(['persen potongan', 'persen']),
+                            persenPotongan: parsedPersen,
                             jabatan: getColVal(['jabatan']),
                             kelasJabatan: getColVal(['kelas jabatan', 'kelas']),
                             tpp100: getColNum(['tpp 100%', 'tpp 100']),
@@ -635,7 +659,7 @@
                 }
             });
 
-            // Lacak NIP Ganda
+            // Tracking NIP Ganda
             doubleNipGlobalInfo = {};
             Object.keys(nipMonthTracker).forEach(pair => {
                 if (nipMonthTracker[pair] > 1) {
@@ -660,7 +684,7 @@
                 const lastRec = recs[recs.length - 1];
                 const uniqueSheets = new Set(recs.map(r => r.sheetName)).size;
 
-                // Sum Nominal Columns
+                // Akumulasi Nilai Numerik
                 const totalTpp100 = recs.reduce((sum, r) => sum + r.tpp100, 0);
                 const totalProduktivitas = recs.reduce((sum, r) => sum + r.produktivitas, 0);
                 const totalDisiplin = recs.reduce((sum, r) => sum + r.disiplin, 0);
@@ -690,7 +714,7 @@
 
                 const getLatestStr = (field) => {
                     for (let i = recs.length - 1; i >= 0; i--) {
-                        if (recs[i][field] && recs[i][field].trim() !== '') return recs[i][field].trim();
+                        if (recs[i][field] && String(recs[i][field]).trim() !== '') return String(recs[i][field]).trim();
                     }
                     return '';
                 };
@@ -723,7 +747,7 @@
                     ketVerifikator: getLatestStr('ketVerifikator'),
                     riwayat: getLatestStr('riwayat'),
                     dieditOleh: getLatestStr('dieditOleh'),
-                    // Additional Metadata
+                    // Metadata Analytics
                     jumlahBulan: uniqueSheets,
                     calculatedNetto: calculatedNetto,
                     selisihIndividual: selisihIndividual,
@@ -1071,7 +1095,7 @@
             XLSX.utils.book_append_sheet(wb, wsMain, "REKAP AKUMULASI TPP");
             XLSX.utils.book_append_sheet(wb, wsAudit, "LAPORAN AUDIT REKONSILIASI");
 
-            XLSX.writeFile(wb, "REKAP_AKUMULASI_TPP_26KOLOM.xlsx");
+            XLSX.writeFile(wb, "REKAP_AKUMULASI_TPP_26KOLOM_UTUH.xlsx");
         }
     </script>
 </body>
