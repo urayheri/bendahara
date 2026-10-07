@@ -33,9 +33,9 @@
                         <h1 class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-300">
                             Aplikasi Rekapitulasi TPP
                         </h1>
-                        <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">v3.2 Multi-File Audit</span>
+                        <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">v3.3 Complete Columns</span>
                     </div>
-                    <p class="text-xs text-indigo-300/80 font-medium">Sistem Akumulasi Multi-File, Multi-Sheet & Deteksi Pintar Rekapitulasi Keuangan</p>
+                    <p class="text-xs text-indigo-300/80 font-medium">Sistem Akumulasi Multi-File, Multi-Sheet & Rekapitulasi 28 Kolom Utuh</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -63,15 +63,11 @@
                 </label>
                 <button id="btnExport" disabled class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:from-emerald-600 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="download" class="w-5 h-5"></i>
-                    <span>2. Ekspor Hasil Rekap</span>
+                    <span>2. Ekspor Hasil Rekap (Full 28 Kolom)</span>
                 </button>
                 <button id="btnAuditLog" disabled onclick="openAuditModal()" class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-amber-600/20 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
                     <i data-lucide="shield-check" class="w-5 h-5"></i>
                     <span>Laporan Audit Selisih</span>
-                </button>
-                <button disabled class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:from-emerald-600 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2.5 w-full sm:w-auto active:scale-95">
-                    <i data-lucide="download" class="w-5 h-5"></i>
-                    <span><a href="ProsesTPP.html">Lanjut Proses TPP (TER)</a></span>
                 </button>
             </div>
             <div class="flex items-center space-x-2 bg-slate-100/80 px-4 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 w-full md:w-auto justify-center">
@@ -148,7 +144,7 @@
                     <div class="p-1.5 bg-indigo-100 text-indigo-700 rounded-lg">
                         <i data-lucide="table" class="w-5 h-5"></i>
                     </div>
-                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">Tabel Hasil Rekapitulasi TPP</h2>
+                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">Tabel Hasil Rekapitulasi TPP (Ringkasan)</h2>
                 </div>
                 <div id="sheetStatusBadge" class="text-xs bg-indigo-50 text-indigo-700 px-3.5 py-1.5 rounded-full border border-indigo-200/60 font-semibold shadow-sm">
                     Sheet Terpilih: -
@@ -163,13 +159,13 @@
                             <th class="py-3.5 px-4">Kode Peg.</th>
                             <th class="py-3.5 px-4">NIP</th>
                             <th class="py-3.5 px-4">Nama Pegawai</th>
-                            <th class="py-3.5 px-4 text-center">Masa Kerja</th>
+                            <th class="py-3.5 px-4">Jabatan</th>
                             <th class="py-3.5 px-4 text-center">Frekuensi/Bulan</th>
                             <th class="py-3.5 px-4 text-right">Total TPP Kotor</th>
                             <th class="py-3.5 px-4 text-right">PPh 21</th>
                             <th class="py-3.5 px-4 text-right">TPP Diterima</th>
                             <th class="py-3.5 px-4 text-right">Selisih Hitung</th>
-                            <th class="py-3.5 px-4">Keterangan Status</th>
+                            <th class="py-3.5 px-4">Unit Kerja</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 text-slate-700">
@@ -405,7 +401,7 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200/80 py-4 text-center text-xs text-slate-500 font-medium">
-        &copy; 2026 Aplikasi Rekapitulasi TPP Pegawai • Dibuat dengan cinta
+        &copy; 2026 Aplikasi Rekapitulasi TPP Pegawai • Powered by SheetJS & Tailwind CSS
     </footer>
 
     <!-- JavaScript Logic -->
@@ -443,7 +439,6 @@
                     const data = new Uint8Array(e.target.result);
                     const wb = XLSX.read(data, { type: 'array' });
 
-                    // Salin setiap sheet dari file ke workbookGlobal
                     wb.SheetNames.forEach(sName => {
                         let uniqueSheetName = files.length > 1 ? `[File ${fIdx + 1}] ${sName}` : sName;
                         workbookGlobal.SheetNames.push(uniqueSheetName);
@@ -469,7 +464,6 @@
                 const item = document.createElement('label');
                 item.className = 'flex items-center space-x-3 p-2.5 bg-white rounded-xl border border-slate-200/80 hover:bg-indigo-50/50 cursor-pointer transition-all text-xs font-semibold text-slate-700';
                 
-                // Centang bawaan jika mengandung pola tertentu atau semua dikulik jika multi-file
                 const isDefaultChecked = sName.includes('9 | 2026') || (idx === sheetNames.length - 1 && !sheetNames.some(s => s.includes('9 | 2026'))) || sheetNames.length <= 5;
                 
                 item.innerHTML = `
@@ -509,27 +503,6 @@
             }, 100);
         }
 
-        function hitungMasaKerja(nipStr) {
-            try {
-                const nipClean = String(nipStr).replace(/'/g, '').trim();
-                if (nipClean.length >= 14) {
-                    const thPangkat = parseInt(nipClean.substring(8, 12));
-                    const blnPangkat = parseInt(nipClean.substring(12, 14));
-                    const tmt = new Date(thPangkat, blnPangkat - 1, 1);
-                    const now = new Date();
-                    
-                    let mkgTahun = now.getFullYear() - tmt.getFullYear();
-                    let mkgBulan = now.getMonth() - tmt.getMonth();
-                    if (mkgBulan < 0) {
-                        mkgTahun--;
-                        mkgBulan += 12;
-                    }
-                    return `${mkgTahun} Thn ${mkgBulan} Bln`;
-                }
-            } catch (e) {}
-            return '-';
-        }
-
         function ekstraksiAngkaKode(kdStr) {
             try {
                 const match = String(kdStr).match(/\d+/);
@@ -555,10 +528,11 @@
 
                 const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
+                // Pencarian header pintar hingga 20 baris
                 let headerIdx = null;
-                for (let r = 0; r < Math.min(5, rawData.length); r++) {
+                for (let r = 0; r < Math.min(20, rawData.length); r++) {
                     const rowStr = (rawData[r] || []).map(v => String(v).toLowerCase()).join(' ');
-                    if (rowStr.includes('kode pegawai') || rowStr.includes('nip') || rowStr.includes('nama pegawai')) {
+                    if (rowStr.includes('kode pegawai') || rowStr.includes('nip') || rowStr.includes('nama pegawai') || rowStr.includes('nama/nip')) {
                         headerIdx = r;
                         break;
                     }
@@ -568,24 +542,25 @@
                     const jsonObjects = XLSX.utils.sheet_to_json(sheet, { range: headerIdx });
                     jsonObjects.forEach(row => {
                         const keys = Object.keys(row);
-                        const cKd = keys.find(k => k.toLowerCase().includes('kode'));
-                        const cNip = keys.find(k => k.toLowerCase().includes('nip'));
-                        const cNama = keys.find(k => k.toLowerCase().includes('nama'));
-                        const cTpp = keys.find(k => k.toLowerCase().includes('100%'));
-                        const cPagu = keys.find(k => k.toLowerCase().includes('pengurangan') || k.toLowerCase().includes('pagu'));
-                        const cPph = keys.find(k => k.toLowerCase().includes('pph'));
-                        const cBpjs1 = keys.find(k => k.toLowerCase().includes('bpjs 1%'));
-                        const cBpjs4 = keys.find(k => k.toLowerCase().includes('bpjs 4%'));
-                        const cTerima = keys.find(k => k.toLowerCase().includes('terima'));
-                        const cKets = keys.filter(k => k.toLowerCase().includes('keterangan'));
 
-                        if (!cNama || !row[cNama]) return;
+                        // Helper pencari nilai kolom berbasis kata kunci
+                        const getColVal = (keywords) => {
+                            const foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().includes(kw)));
+                            return foundKey && row[foundKey] !== undefined && row[foundKey] !== null ? String(row[foundKey]).trim() : '';
+                        };
 
-                        const kdVal = cKd && row[cKd] ? String(row[cKd]).trim() : '';
-                        const nipVal = cNip && row[cNip] ? String(row[cNip]).replace(/'/g, '').trim() : '';
-                        const namaVal = row[cNama] ? String(row[cNama]).trim() : '';
+                        const getColNum = (keywords) => {
+                            const foundKey = keys.find(k => keywords.some(kw => k.toLowerCase().includes(kw)));
+                            if (!foundKey) return 0;
+                            const val = parseFloat(row[foundKey]);
+                            return isNaN(val) ? 0 : Math.round(val);
+                        };
 
-                        if (!kdVal && !nipVal) return;
+                        const kdVal = getColVal(['kode pegawai', 'kode_pegawai', 'kode']);
+                        const nipVal = getColVal(['nip']).replace(/'/g, '');
+                        const namaVal = getColVal(['nama pegawai', 'nama/nip', 'nama']);
+
+                        if (!namaVal && !nipVal && !kdVal) return;
 
                         auditRawCount++;
                         const keyId = (nipVal && nipVal.length >= 8) ? `NIP:${nipVal}` : (kdVal || namaVal);
@@ -595,33 +570,40 @@
                             nipMonthTracker[pairKey] = (nipMonthTracker[pairKey] || 0) + 1;
                         }
 
-                        let ketList = [];
-                        cKets.forEach(ck => {
-                            if (row[ck] && String(row[ck]).trim() !== '') {
-                                ketList.push(String(row[ck]).trim());
-                            }
-                        });
-
                         records.push({
                             keyId: keyId,
                             sheetIdx: sheetIdx,
                             sheetName: sheetName,
                             kdPegawai: kdVal,
-                            nip: nipVal,
                             namaPegawai: namaVal,
-                            unitKerja: String(row['Unit Kerja'] || row['UNIT KERJA'] || ''),
-                            golongan: String(row['Golongan Ruang'] || row['GOLONGAN'] || ''),
-                            jabatan: String(row['Jabatan'] || row['JABATAN'] || ''),
-                            tpp100: Math.round(parseFloat(row[cTpp]) || 0),
-                            pagu: Math.round(parseFloat(row[cPagu]) || 0),
-                            pph21: Math.round(parseFloat(row[cPph]) || 0),
-                            bpjs1: Math.round(parseFloat(row[cBpjs1]) || 0),
-                            bpjs4: Math.round(parseFloat(row[cBpjs4]) || 0),
-                            tppTerima: Math.round(parseFloat(row[cTerima]) || 0),
-                            ketStatus: ketList.join(' | ')
+                            nip: nipVal,
+                            golongan: getColVal(['golongan ruang', 'golongan', 'gol/ruang', 'gol']),
+                            noRekening: getColVal(['no rekening', 'no. rek', 'rekening']),
+                            persenPotongan: getColVal(['persen potongan', 'persen bantu', 'persen']),
+                            jabatan: getColVal(['jabatan']),
+                            kelasJabatan: getColVal(['kelas jabatan', 'kelas']),
+                            tpp100: getColNum(['tpp 100%', 'tpp 100']),
+                            produktivitas: getColNum(['produktivitas kerja', 'produktivitas']),
+                            disiplin: getColNum(['disiplin kerja', 'disiplin']),
+                            pagu: getColNum(['pengurangan pagu', 'pagu']),
+                            pph21: getColNum(['pph 21', 'pph21', 'pph']),
+                            bpjs1: getColNum(['bpjs 1%', 'bpjs 1']),
+                            bpjs4: getColNum(['bpjs 4%', 'bpjs 4']),
+                            tppTerima: getColNum(['tpp diterima', 'terima']),
+                            tandaTangan: getColVal(['tanda tangan']),
+                            unitKerja: getColVal(['unit kerja', 'satker', 'nmsatker']),
+                            kodeUnitKerja: getColVal(['kode unit kerja', 'kode unit']),
+                            kecamatan: getColVal(['kecamatan']),
+                            jenisTpp: getColVal(['jenis tpp']),
+                            ketJenisTpp: getColVal(['keterangan jenis tpp', 'keterangan tpp']),
+                            ketKorwil: getColVal(['keterangan korwil']),
+                            ketVerifikator: getColVal(['keterangan verifikator', 'keterangan']),
+                            riwayat: getColVal(['riwayat']),
+                            dieditOleh: getColVal(['diedit oleh', 'edit oleh'])
                         });
                     });
                 } else {
+                    // Fallback Array indeks murni jika header tidak terdeteksi
                     rawData.forEach(row => {
                         if (!row || row.length === 0) return;
                         const kdVal = row[0] ? String(row[0]).trim() : '';
@@ -643,23 +625,37 @@
                             sheetIdx: sheetIdx,
                             sheetName: sheetName,
                             kdPegawai: kdVal,
-                            nip: nipVal,
                             namaPegawai: namaVal,
-                            unitKerja: row[17] ? String(row[17]) : '',
+                            nip: nipVal,
                             golongan: row[3] ? String(row[3]) : '',
+                            noRekening: row[4] ? String(row[4]) : '',
+                            persenPotongan: row[5] ? String(row[5]) : '',
                             jabatan: row[6] ? String(row[6]) : '',
+                            kelasJabatan: row[7] ? String(row[7]) : '',
                             tpp100: Math.round(parseFloat(row[8]) || 0),
+                            produktivitas: Math.round(parseFloat(row[9]) || 0),
+                            disiplin: Math.round(parseFloat(row[10]) || 0),
                             pagu: Math.round(parseFloat(row[11]) || 0),
                             pph21: Math.round(parseFloat(row[12]) || 0),
                             bpjs1: Math.round(parseFloat(row[13]) || 0),
                             bpjs4: Math.round(parseFloat(row[14]) || 0),
                             tppTerima: Math.round(parseFloat(row[15]) || 0),
-                            ketStatus: ''
+                            tandaTangan: row[16] ? String(row[16]) : '',
+                            unitKerja: row[17] ? String(row[17]) : '',
+                            kodeUnitKerja: row[18] ? String(row[18]) : '',
+                            kecamatan: row[19] ? String(row[19]) : '',
+                            jenisTpp: row[20] ? String(row[20]) : '',
+                            ketJenisTpp: row[21] ? String(row[21]) : '',
+                            ketKorwil: row[22] ? String(row[22]) : '',
+                            ketVerifikator: row[23] ? String(row[23]) : '',
+                            riwayat: row[24] ? String(row[24]) : '',
+                            dieditOleh: row[25] ? String(row[25]) : ''
                         });
                     });
                 }
             });
 
+            // Lacak NIP Ganda
             doubleNipGlobalInfo = {};
             Object.keys(nipMonthTracker).forEach(pair => {
                 if (nipMonthTracker[pair] > 1) {
@@ -669,11 +665,10 @@
                 }
             });
 
+            // Pengelompokan Data & Akumulasi 28 Kolom
             let groupedMap = {};
             records.forEach(rec => {
-                if (!groupedMap[rec.keyId]) {
-                    groupedMap[rec.keyId] = [];
-                }
+                if (!groupedMap[rec.keyId]) groupedMap[rec.keyId] = [];
                 groupedMap[rec.keyId].push(rec);
             });
 
@@ -682,10 +677,13 @@
                 let recs = groupedMap[keyId];
                 recs.sort((a, b) => a.sheetIdx - b.sheetIdx);
 
-                const lastRec = recs[recs.length - 1];
+                const lastRec = recs[recs.length - 1]; // Mengambil metadata terkini
                 const uniqueSheets = new Set(recs.map(r => r.sheetName)).size;
 
+                // Akumulasi Angka
                 const totalTpp100 = recs.reduce((sum, r) => sum + r.tpp100, 0);
+                const totalProduktivitas = recs.reduce((sum, r) => sum + r.produktivitas, 0);
+                const totalDisiplin = recs.reduce((sum, r) => sum + r.disiplin, 0);
                 const totalPagu = recs.reduce((sum, r) => sum + r.pagu, 0);
                 const totalPph21 = recs.reduce((sum, r) => sum + r.pph21, 0);
                 const totalBpjs1 = recs.reduce((sum, r) => sum + r.bpjs1, 0);
@@ -695,14 +693,6 @@
                 // Formula Perhitungan Netto Standar
                 const calculatedNetto = totalTpp100 - totalPagu - totalPph21 - (totalBpjs1 + totalBpjs4);
                 const selisihIndividual = totalTppTerima - calculatedNetto;
-
-                let mutakhirKet = '';
-                for (let i = recs.length - 1; i >= 0; i--) {
-                    if (recs[i].ketStatus && recs[i].ketStatus.trim() !== '') {
-                        mutakhirKet = recs[i].ketStatus.trim();
-                        break;
-                    }
-                }
 
                 const isDouble = doubleNipGlobalInfo[lastRec.nip] ? true : false;
                 const isZeroTpp = totalTppTerima === 0;
@@ -719,24 +709,44 @@
                     warningList.push(`[⚠️ SELISIH: Rp ${selisihIndividual.toLocaleString('id-ID')}]`);
                 }
 
+                // Ambil nilai teks mutakhir
+                const getLatestStr = (field) => {
+                    for (let i = recs.length - 1; i >= 0; i--) {
+                        if (recs[i][field] && recs[i][field].trim() !== '') return recs[i][field].trim();
+                    }
+                    return '';
+                };
+
                 const pegObj = {
                     kdPegawai: lastRec.kdPegawai,
-                    nip: lastRec.nip,
                     namaPegawai: lastRec.namaPegawai,
-                    masaKerja: hitungMasaKerja(lastRec.nip),
-                    golongan: lastRec.golongan,
-                    jabatan: lastRec.jabatan,
-                    unitKerja: lastRec.unitKerja,
-                    jumlahBulan: uniqueSheets,
+                    nip: lastRec.nip,
+                    golongan: getLatestStr('golongan'),
+                    noRekening: getLatestStr('noRekening'),
+                    persenPotongan: getLatestStr('persenPotongan'),
+                    jabatan: getLatestStr('jabatan'),
+                    kelasJabatan: getLatestStr('kelasJabatan'),
                     tpp100: totalTpp100,
+                    produktivitas: totalProduktivitas,
+                    disiplin: totalDisiplin,
                     pagu: totalPagu,
                     pph21: totalPph21,
                     bpjs1: totalBpjs1,
                     bpjs4: totalBpjs4,
                     tppTerima: totalTppTerima,
+                    tandaTangan: getLatestStr('tandaTangan'),
+                    unitKerja: getLatestStr('unitKerja'),
+                    kodeUnitKerja: getLatestStr('kodeUnitKerja'),
+                    kecamatan: getLatestStr('kecamatan'),
+                    jenisTpp: getLatestStr('jenisTpp'),
+                    ketJenisTpp: getLatestStr('ketJenisTpp'),
+                    ketKorwil: getLatestStr('ketKorwil'),
+                    ketVerifikator: getLatestStr('ketVerifikator'),
+                    riwayat: getLatestStr('riwayat'),
+                    dieditOleh: getLatestStr('dieditOleh'),
+                    jumlahBulan: uniqueSheets,
                     calculatedNetto: calculatedNetto,
                     selisihIndividual: selisihIndividual,
-                    ketStatus: mutakhirKet,
                     catatanPeringatan: warningList.join(' '),
                     isDouble: isDouble,
                     isZeroTpp: isZeroTpp,
@@ -821,7 +831,7 @@
                     <td class="py-3.5 px-4 font-mono font-semibold text-slate-600">${item.kdPegawai || '-'}</td>
                     <td class="py-3.5 px-4 font-mono text-slate-600">${item.nip || '-'}</td>
                     <td class="py-3.5 px-4 font-bold text-slate-900">${item.namaPegawai}</td>
-                    <td class="py-3.5 px-4 text-center font-medium">${item.masaKerja}</td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700">${item.jabatan || '-'}</td>
                     <td class="py-3.5 px-4 text-center font-extrabold text-indigo-700 bg-indigo-50/50 rounded-lg">${item.jumlahBulan}</td>
                     <td class="py-3.5 px-4 text-right font-mono font-medium">Rp ${item.tpp100.toLocaleString('id-ID')}</td>
                     <td class="py-3.5 px-4 text-right font-mono font-medium text-rose-600">Rp ${item.pph21.toLocaleString('id-ID')}</td>
@@ -829,7 +839,7 @@
                     <td class="py-3.5 px-4 text-right font-mono font-bold ${item.hasSelisih ? 'text-rose-600 bg-rose-100/80 rounded-lg' : 'text-slate-400'}">
                         ${item.hasSelisih ? `Rp ${item.selisihIndividual.toLocaleString('id-ID')}` : 'Rp 0'}
                     </td>
-                    <td class="py-3.5 px-4 max-w-xs truncate text-slate-600">${item.ketStatus || '-'}</td>
+                    <td class="py-3.5 px-4 max-w-xs truncate text-slate-600">${item.unitKerja || '-'}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1001,31 +1011,44 @@
         function exportToExcel() {
             if (globalProcessedData.length === 0) return;
 
-            // Sheet 1: Rekapitulasi Utama
+            // Sheet 1: Rekapitulasi Utama FULL 28 KOLOM
             const exportHeaders = [
-                "Kode Pegawai", "NIP", "Nama Pegawai", "Masa Kerja", "Golongan", "Jabatan",
-                "Unit Kerja", "Jumlah Bulan", "TPP 100%", "Pengurangan Pagu", "PPH 21",
-                "BPJS 1%", "BPJS 4%", "TPP Diterima (Excel)", "Hasil Formula", "Selisih Hitung", "Keterangan Status", "Catatan Peringatan"
+                "Kode Pegawai", "Nama Pegawai", "NIP", "Golongan Ruang", "No Rekening", 
+                "Persen Potongan", "Jabatan", "Kelas Jabatan", "TPP 100%", "Produktivitas Kerja", 
+                "Disiplin Kerja", "Pengurangan Pagu TPP", "PPH 21", "BPJS 1%", "BPJS 4%", 
+                "TPP diterima", "Tanda Tangan", "Unit Kerja", "Kode Unit Kerja", "kecamatan", 
+                "Jenis TPP", "Keterangan Jenis TPP", "Keterangan Korwil", "Keterangan Verifikator", 
+                "Riwayat", "diedit oleh", "Jumlah Bulan", "Catatan Peringatan"
             ];
 
             const exportRows = globalProcessedData.map(item => [
                 item.kdPegawai,
-                item.nip,
                 item.namaPegawai,
-                item.masaKerja,
+                item.nip,
                 item.golongan,
+                item.noRekening,
+                item.persenPotongan,
                 item.jabatan,
-                item.unitKerja,
-                item.jumlahBulan,
+                item.kelasJabatan,
                 item.tpp100,
+                item.produktivitas,
+                item.disiplin,
                 item.pagu,
                 item.pph21,
                 item.bpjs1,
                 item.bpjs4,
                 item.tppTerima,
-                item.calculatedNetto,
-                item.selisihIndividual,
-                item.ketStatus,
+                item.tandaTangan,
+                item.unitKerja,
+                item.kodeUnitKerja,
+                item.kecamatan,
+                item.jenisTpp,
+                item.ketJenisTpp,
+                item.ketKorwil,
+                item.ketVerifikator,
+                item.riwayat,
+                item.dieditOleh,
+                item.jumlahBulan,
                 item.catatanPeringatan
             ]);
 
@@ -1061,7 +1084,7 @@
             XLSX.utils.book_append_sheet(wb, wsMain, "REKAP AKUMULASI TPP");
             XLSX.utils.book_append_sheet(wb, wsAudit, "LAPORAN AUDIT REKONSILIASI");
 
-            XLSX.writeFile(wb, "REKAP_AKUMULASI_TPP_ENTERPRISE.xlsx");
+            XLSX.writeFile(wb, "REKAP_AKUMULASI_TPP_FULL_COLUMNS.xlsx");
         }
     </script>
 </body>
